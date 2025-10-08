@@ -29,13 +29,23 @@ struct MockGhibliService: GhibliService {
          }
      }
     
+    //MARK: - Protocol conformance
+    
     func fetchFilms() async throws -> [Film] {
         let data = try loadSampleData()
         return data.films
     }
     
+
     func fetchPerson(from URLString: String) async throws -> Person {
         let data = try loadSampleData()
         return data.people.first!
+    }
+    
+    //MARK: - preview/testing only
+    
+    func fetchFilm() -> Film {
+        let data = try! loadSampleData()
+        return data.films.first!
     }
 }
