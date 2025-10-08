@@ -19,7 +19,6 @@ class FilmsViewModel {
     }
     
     var state: State = .idle
-    var films: [Film] = []
     
     private let service: GhibliService
     
@@ -35,7 +34,6 @@ class FilmsViewModel {
         
         do {
             let films = try await service.fetchFilms()
-            
             self.state = .loaded(films)
         } catch let error as APIError {
             self.state = .error(error.errorDescription ?? "unknown error")
@@ -45,6 +43,12 @@ class FilmsViewModel {
     }
     
     
-
+// MARK: - Preview
+    
+    static var example: FilmsViewModel {
+        let vm = FilmsViewModel(service: MockGhibliService())
+        vm.state = .loaded([Film.example, Film.exampleFavorite])
+        return vm
+    }
 
 }
