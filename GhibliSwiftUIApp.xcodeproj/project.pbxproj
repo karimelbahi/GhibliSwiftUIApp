@@ -27,6 +27,12 @@
 		170A28912E93D9B00026ADE6 /* GhibliSwiftUIApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GhibliSwiftUIApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		170A289E2E93D9B20026ADE6 /* GhibliSwiftUIAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GhibliSwiftUIAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		170A28A82E93D9B20026ADE6 /* GhibliSwiftUIAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GhibliSwiftUIAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1799C85A2E98E34900AED8F3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		1799C85B2E98E65000AED8F3 /* ghibli_favorites.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ghibli_favorites.jpeg; sourceTree = "<group>"; };
+		1799C85C2E98E65000AED8F3 /* ghibli_movie_detail.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ghibli_movie_detail.jpeg; sourceTree = "<group>"; };
+		1799C85D2E98E65000AED8F3 /* ghibli_movie_list.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ghibli_movie_list.jpeg; sourceTree = "<group>"; };
+		1799C85E2E98E65000AED8F3 /* ghibli_search.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ghibli_search.jpeg; sourceTree = "<group>"; };
+		1799C85F2E98E65000AED8F3 /* ghibli_settings.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ghibli_settings.jpeg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,10 +81,12 @@
 		170A28882E93D9B00026ADE6 = {
 			isa = PBXGroup;
 			children = (
+				1799C8592E98E32C00AED8F3 /* images */,
 				170A28932E93D9B00026ADE6 /* GhibliSwiftUIApp */,
 				170A28A12E93D9B20026ADE6 /* GhibliSwiftUIAppTests */,
 				170A28AB2E93D9B20026ADE6 /* GhibliSwiftUIAppUITests */,
 				170A28922E93D9B00026ADE6 /* Products */,
+				1799C85A2E98E34900AED8F3 /* README.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -90,6 +98,18 @@
 				170A28A82E93D9B20026ADE6 /* GhibliSwiftUIAppUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1799C8592E98E32C00AED8F3 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				1799C85B2E98E65000AED8F3 /* ghibli_favorites.jpeg */,
+				1799C85C2E98E65000AED8F3 /* ghibli_movie_detail.jpeg */,
+				1799C85D2E98E65000AED8F3 /* ghibli_movie_list.jpeg */,
+				1799C85E2E98E65000AED8F3 /* ghibli_search.jpeg */,
+				1799C85F2E98E65000AED8F3 /* ghibli_settings.jpeg */,
+			);
+			path = images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
