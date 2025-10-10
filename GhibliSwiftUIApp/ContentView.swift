@@ -29,7 +29,7 @@ struct ContentView: View {
             }
             
             Tab(role: .search) {
-                SearchScreen()
+                SearchScreen(favoritesViewModel: favoritesViewModel)
             }
         }
         .task {

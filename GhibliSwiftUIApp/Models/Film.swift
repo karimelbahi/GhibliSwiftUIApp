@@ -7,7 +7,27 @@
 
 import Foundation
 
-struct Film: Codable, Identifiable, Equatable, Hashable {
+/*
+// used for background work
+ -> works nicely with swift concurrency
+ 
+nonisolated
+struct FilmDTO: Sendable {
+    
+    init(film: Film) {
+        
+    }
+}
+ 
+// used in the UI with SwiftUI observation feature
+ - gives you great performance
+ 
+//@Observable
+//class  Film: Codable, Identifiable, Equatable, Hashable
+*/
+
+nonisolated //opted out of @MainActor
+struct  Film: Codable, Identifiable, Equatable, Hashable {
     let id: String
     let title: String
     let description: String
@@ -34,6 +54,7 @@ struct Film: Codable, Identifiable, Equatable, Hashable {
     
     //MARK: - Preview
     
+    @MainActor
     static var example: Film {
         //MockGhibliService().fetchFilm()
         let bannerULR = URL.convertAssetImage(named: "bannerImage")
@@ -52,6 +73,7 @@ struct Film: Codable, Identifiable, Equatable, Hashable {
                    people: ["https://ghibliapi.vercel.app/people/598f7048-74ff-41e0-92ef-87dc1ad980a9"])
     }
     
+    @MainActor
     static var exampleFavorite: Film {
         //MockGhibliService().fetchFilm()
         let bannerULR = URL.convertAssetImage(named: "bannerImage")
