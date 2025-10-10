@@ -1,6 +1,6 @@
 # Building a SwiftUI with Ghibli API
 
-tech stack
+the project was build with the following:
 - iOS 26+
 - SwiftUI with Observation feature for better performance
 - URLSession with async/await
@@ -16,19 +16,25 @@ API [documentation](https://ghibliapi.vercel.app/) for Studio Ghibli:
 
 - TabView with Navigation Stacks
 - List Screen (fetch from API, show list of items).
-![](/images/ghibli_movie_list.jpeg)
-
 - Detail Screen (display more info, async image loading).
-![](/images/ghibli_movie_detail.jpeg)
+  
+<p float="left">
+  <img src="images/ghibli_movie_list.jpeg" width="40%" />
+  <img src="/images/ghibli_movie_detail.jpeg" width="40%" /> 
+</p>
 
 - Favorites (local persistence).
-![](/images/ghibli_favorites.jpeg)
+  
+<img src="/images/ghibli_favorites.jpeg" width=40%>
 
 - Search (filter + async debounce).
-![](/images/ghibli_search.jpeg)
+  
+<img src="/images/ghibli_search.jpeg" width=40%>
 
 - Settings (theme, stored in UserDefaults).
-![](/images/ghibli_settings.jpeg)
+  
+<img src="/images/ghibli_settings.jpeg" width=40%>
+
 
 - testing, mocks, & dependency injection
 
