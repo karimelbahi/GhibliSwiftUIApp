@@ -6,6 +6,9 @@
 //
 import Foundation
 import Testing
+import GhibliDomain
+import GhibliData
+import GhibliPresentation
 @testable import GhibliSwiftUIApp
 
 struct GhibliSwiftUIAppTests {

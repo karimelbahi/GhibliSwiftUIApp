@@ -1,9 +1,9 @@
 //
 //  PreviewData.swift
-//  GhibliSwiftUIApp
 //
 
 import Foundation
+import GhibliDomain
 
 enum PreviewData {
 

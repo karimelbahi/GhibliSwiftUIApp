@@ -1,9 +1,10 @@
 //
 //  ContentView.swift
-//  GhibliSwiftUIApp
 //
 
 import SwiftUI
+import GhibliDomain
+import GhibliPresentation
 
 struct ContentView: View {
 

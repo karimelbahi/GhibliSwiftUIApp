@@ -1,17 +1,19 @@
 //
 //  AppDependencies.swift
-//  GhibliSwiftUIApp
 //
 
 import Foundation
+import GhibliDomain
+import GhibliData
+import GhibliPresentation
 
-struct AppDependencies {
-    let filmsViewModel: FilmsViewModel
-    let favoritesViewModel: FavoritesViewModel
-    let searchFilmsViewModel: SearchFilmsViewModel
-    let fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
+public struct AppDependencies {
+    public let filmsViewModel: FilmsViewModel
+    public let favoritesViewModel: FavoritesViewModel
+    public let searchFilmsViewModel: SearchFilmsViewModel
+    public let fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
 
-    static func live() -> AppDependencies {
+    public static func live() -> AppDependencies {
         let ghibliRepository = DefaultGhibliRepository(service: DefaultGhibliService())
         let favoritesRepository = DefaultFavoritesRepository(storage: DefaultFavoriteStorage())
 
@@ -30,7 +32,7 @@ struct AppDependencies {
 
     #if DEBUG
     @MainActor
-    static func preview() -> AppDependencies {
+    public static func preview() -> AppDependencies {
         let ghibliRepository = DefaultGhibliRepository(service: MockGhibliService())
         let favoritesRepository = DefaultFavoritesRepository(storage: MockFavoriteStorage())
 
@@ -56,7 +58,7 @@ struct AppDependencies {
     }
 
     @MainActor
-    func makeFilmDetailViewModel(preloaded: Bool = false) -> FilmDetailViewModel {
+    public func makeFilmDetailViewModel(preloaded: Bool = false) -> FilmDetailViewModel {
         let viewModel = FilmDetailViewModel(fetchFilmPeopleUseCase: fetchFilmPeopleUseCase)
         if preloaded {
             viewModel.state = .loaded([PreviewData.samplePerson])
