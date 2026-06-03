@@ -3,9 +3,6 @@
 //
 
 import Foundation
-import GhibliDomain
-import GhibliData
-import GhibliPresentation
 
 public struct AppDependencies {
     public let filmsViewModel: FilmsViewModel

@@ -3,8 +3,6 @@
 //
 
 import SwiftUI
-import GhibliDomain
-import GhibliPresentation
 
 #Preview("Films") {
     let dependencies = AppDependencies.preview()
