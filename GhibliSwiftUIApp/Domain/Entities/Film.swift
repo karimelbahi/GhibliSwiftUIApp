@@ -4,6 +4,7 @@
 
 import Foundation
 
+nonisolated
 public struct Film: Identifiable, Equatable, Hashable, Sendable {
     public let id: String
     public let title: String

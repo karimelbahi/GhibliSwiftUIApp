@@ -5,6 +5,7 @@
 
 import Foundation
 
+nonisolated
 struct PersonDTO: Decodable, Sendable {
     let id: String
     let name: String

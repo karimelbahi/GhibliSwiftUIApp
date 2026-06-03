@@ -4,6 +4,7 @@
 
 import Foundation
 
+nonisolated
 public struct Person: Identifiable, Equatable, Sendable {
     public let id: String
     public let name: String

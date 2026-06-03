@@ -5,6 +5,7 @@
 
 import Foundation
 
+nonisolated
 enum PersonMapper {
     static func toDomain(_ dto: PersonDTO) -> Person {
         Person(

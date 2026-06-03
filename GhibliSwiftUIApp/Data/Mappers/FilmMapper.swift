@@ -5,6 +5,7 @@
 
 import Foundation
 
+nonisolated
 enum FilmMapper {
     static func toDomain(_ dto: FilmDTO) -> Film {
         Film(

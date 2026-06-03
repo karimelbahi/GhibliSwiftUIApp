@@ -5,6 +5,7 @@
 
 import Foundation
 
+nonisolated
 struct FilmDTO: Decodable, Sendable {
     let id: String
     let title: String
