@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		883E94DB2FD087BD00C7EEBE /* GhibliDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D52E93D9B00026ADE6 /* GhibliDomain */; };
+		883E94DC2FD087BD00C7EEBE /* GhibliData in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D62E93D9B00026ADE6 /* GhibliData */; };
+		883E94DD2FD087BD00C7EEBE /* GhibliPresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */; };
+		883E94DE2FD087BD00C7EEBE /* GhibliDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D52E93D9B00026ADE6 /* GhibliDomain */; };
+		883E94DF2FD087BD00C7EEBE /* GhibliData in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D62E93D9B00026ADE6 /* GhibliData */; };
+		883E94E02FD087BD00C7EEBE /* GhibliPresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		170A289F2E93D9B20026ADE6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -58,6 +67,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				883E94DD2FD087BD00C7EEBE /* GhibliPresentation in Frameworks */,
+				883E94DC2FD087BD00C7EEBE /* GhibliData in Frameworks */,
+				883E94DB2FD087BD00C7EEBE /* GhibliDomain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +77,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				883E94DE2FD087BD00C7EEBE /* GhibliDomain in Frameworks */,
+				883E94DF2FD087BD00C7EEBE /* GhibliData in Frameworks */,
+				883E94E02FD087BD00C7EEBE /* GhibliPresentation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,6 +147,9 @@
 			);
 			name = GhibliSwiftUIApp;
 			packageProductDependencies = (
+				17A1C3D52E93D9B00026ADE6 /* GhibliDomain */,
+				17A1C3D62E93D9B00026ADE6 /* GhibliData */,
+				17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */,
 			);
 			productName = GhibliSwiftUIApp;
 			productReference = 170A28912E93D9B00026ADE6 /* GhibliSwiftUIApp.app */;
@@ -155,6 +173,9 @@
 			);
 			name = GhibliSwiftUIAppTests;
 			packageProductDependencies = (
+				17A1C3D52E93D9B00026ADE6 /* GhibliDomain */,
+				17A1C3D62E93D9B00026ADE6 /* GhibliData */,
+				17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */,
 			);
 			productName = GhibliSwiftUIAppTests;
 			productReference = 170A289E2E93D9B20026ADE6 /* GhibliSwiftUIAppTests.xctest */;
@@ -215,6 +236,9 @@
 			);
 			mainGroup = 170A28882E93D9B00026ADE6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 170A28922E93D9B00026ADE6 /* Products */;
 			projectDirPath = "";
@@ -602,6 +626,31 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/GhibliKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		17A1C3D52E93D9B00026ADE6 /* GhibliDomain */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */;
+			productName = GhibliDomain;
+		};
+		17A1C3D62E93D9B00026ADE6 /* GhibliData */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */;
+			productName = GhibliData;
+		};
+		17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */;
+			productName = GhibliPresentation;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 170A28892E93D9B00026ADE6 /* Project object */;
 }
