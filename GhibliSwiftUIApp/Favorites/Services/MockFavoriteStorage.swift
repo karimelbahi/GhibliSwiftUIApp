@@ -7,6 +7,7 @@
 
 import Foundation
 
+nonisolated
 struct MockFavoriteStorage: FavoriteStorage {
     
     func load() -> Set<String> {

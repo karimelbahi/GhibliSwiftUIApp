@@ -38,7 +38,11 @@ class FilmsViewModel {
 // MARK: - Preview
     
     static var example: FilmsViewModel {
-        let vm = FilmsViewModel(fetchFilmsUseCase: DefaultFetchFilmsUseCase(service: MockGhibliService()))
+        let vm = FilmsViewModel(
+            fetchFilmsUseCase: DefaultFetchFilmsUseCase(
+                repository: DefaultGhibliRepository(service: MockGhibliService())
+            )
+        )
         vm.state = .loaded([Film.example, Film.exampleFavorite])
         return vm
     }

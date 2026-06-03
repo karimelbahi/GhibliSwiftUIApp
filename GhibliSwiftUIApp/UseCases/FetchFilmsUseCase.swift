@@ -9,15 +9,16 @@ protocol FetchFilmsUseCase: Sendable {
     func execute() async throws -> [Film]
 }
 
+nonisolated
 struct DefaultFetchFilmsUseCase: FetchFilmsUseCase {
 
-    private let service: GhibliService
+    private let repository: GhibliRepository
 
-    init(service: GhibliService = DefaultGhibliService()) {
-        self.service = service
+    init(repository: GhibliRepository = DefaultGhibliRepository()) {
+        self.repository = repository
     }
 
     func execute() async throws -> [Film] {
-        try await service.fetchFilms()
+        try await repository.fetchFilms()
     }
 }

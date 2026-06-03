@@ -40,7 +40,9 @@ class FilmDetailViewModel {
 extension FilmDetailViewModel {
     static var example: FilmDetailViewModel {
         let vm = FilmDetailViewModel(
-            fetchFilmPeopleUseCase: DefaultFetchFilmPeopleUseCase(service: MockGhibliService())
+            fetchFilmPeopleUseCase: DefaultFetchFilmPeopleUseCase(
+                repository: DefaultGhibliRepository(service: MockGhibliService())
+            )
         )
         vm.state = .loaded([
             Person(
@@ -63,7 +65,10 @@ import Playgrounds
 
 #Playground {
     let service = MockGhibliService()
-    let vm = FilmDetailViewModel(fetchFilmPeopleUseCase: DefaultFetchFilmPeopleUseCase(service: service))
+    let repository = DefaultGhibliRepository(service: service)
+    let vm = FilmDetailViewModel(
+        fetchFilmPeopleUseCase: DefaultFetchFilmPeopleUseCase(repository: repository)
+    )
     
     let film = service.fetchFilm()
     await vm.fetch(for: film)

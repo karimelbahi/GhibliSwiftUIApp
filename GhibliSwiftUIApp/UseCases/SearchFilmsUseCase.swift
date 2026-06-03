@@ -9,15 +9,16 @@ protocol SearchFilmsUseCase: Sendable {
     func execute(searchTerm: String) async throws -> [Film]
 }
 
+nonisolated
 struct DefaultSearchFilmsUseCase: SearchFilmsUseCase {
 
-    private let service: GhibliService
+    private let repository: GhibliRepository
 
-    init(service: GhibliService = DefaultGhibliService()) {
-        self.service = service
+    init(repository: GhibliRepository = DefaultGhibliRepository()) {
+        self.repository = repository
     }
 
     func execute(searchTerm: String) async throws -> [Film] {
-        try await service.searchFilm(for: searchTerm)
+        try await repository.searchFilms(for: searchTerm)
     }
 }

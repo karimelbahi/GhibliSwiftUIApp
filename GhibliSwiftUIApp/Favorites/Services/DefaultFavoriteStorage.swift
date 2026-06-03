@@ -7,6 +7,7 @@
 
 import Foundation
 
+nonisolated
 struct DefaultFavoriteStorage: FavoriteStorage {
     
     private let favoritesKey = "GhibliExplorer.FavoriteFilms"

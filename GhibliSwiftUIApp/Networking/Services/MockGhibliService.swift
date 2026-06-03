@@ -7,6 +7,7 @@
 
 import Foundation
 
+nonisolated
 struct MockGhibliService: GhibliService {
     
     private struct SampleData: Decodable {

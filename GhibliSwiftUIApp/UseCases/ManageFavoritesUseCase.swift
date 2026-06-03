@@ -10,19 +10,20 @@ protocol ManageFavoritesUseCase {
     func save(favoriteIDs: Set<String>)
 }
 
+nonisolated
 struct DefaultManageFavoritesUseCase: ManageFavoritesUseCase {
 
-    private let storage: FavoriteStorage
+    private let repository: FavoritesRepository
 
-    init(storage: FavoriteStorage = DefaultFavoriteStorage()) {
-        self.storage = storage
+    init(repository: FavoritesRepository = DefaultFavoritesRepository()) {
+        self.repository = repository
     }
 
     func load() -> Set<String> {
-        storage.load()
+        repository.load()
     }
 
     func save(favoriteIDs: Set<String>) {
-        storage.save(favoriteIDs: favoriteIDs)
+        repository.save(favoriteIDs: favoriteIDs)
     }
 }

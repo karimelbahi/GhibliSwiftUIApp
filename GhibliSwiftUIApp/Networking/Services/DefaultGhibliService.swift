@@ -7,6 +7,7 @@
 
 import Foundation
 
+nonisolated
 struct DefaultGhibliService: GhibliService {
     
     func fetch<T: Decodable>(from URLString: String, type: T.Type,) async throws -> T {

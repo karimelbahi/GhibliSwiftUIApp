@@ -54,6 +54,8 @@ struct ContentView: View {
     ContentView(
         filmsViewModel: .example,
         favoritesViewModel: .example,
-        searchFilmsUseCase: DefaultSearchFilmsUseCase(service: MockGhibliService())
+        searchFilmsUseCase: DefaultSearchFilmsUseCase(
+            repository: DefaultGhibliRepository(service: MockGhibliService())
+        )
     )
 }

@@ -9,29 +9,16 @@ protocol FetchFilmPeopleUseCase: Sendable {
     func execute(for film: Film) async throws -> [Person]
 }
 
+nonisolated
 struct DefaultFetchFilmPeopleUseCase: FetchFilmPeopleUseCase {
 
-    private let service: GhibliService
+    private let repository: GhibliRepository
 
-    init(service: GhibliService = DefaultGhibliService()) {
-        self.service = service
+    init(repository: GhibliRepository = DefaultGhibliRepository()) {
+        self.repository = repository
     }
 
     func execute(for film: Film) async throws -> [Person] {
-        var loadedPeople: [Person] = []
-
-        try await withThrowingTaskGroup(of: Person.self) { group in
-            for personInfoURL in film.people {
-                group.addTask {
-                    try await self.service.fetchPerson(from: personInfoURL)
-                }
-            }
-
-            for try await person in group {
-                loadedPeople.append(person)
-            }
-        }
-
-        return loadedPeople
+        try await repository.fetchPeople(for: film)
     }
 }

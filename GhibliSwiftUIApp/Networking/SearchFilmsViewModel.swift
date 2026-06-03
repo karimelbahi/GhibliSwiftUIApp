@@ -63,7 +63,9 @@ class SearchFilmsViewModel {
     
     static var example: SearchFilmsViewModel {
         let vm = SearchFilmsViewModel(
-            searchFilmsUseCase: DefaultSearchFilmsUseCase(service: MockGhibliService())
+            searchFilmsUseCase: DefaultSearchFilmsUseCase(
+                repository: DefaultGhibliRepository(service: MockGhibliService())
+            )
         )
         vm.state = .loaded([Film.example])
         return vm

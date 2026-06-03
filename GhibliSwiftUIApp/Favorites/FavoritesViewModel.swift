@@ -44,7 +44,11 @@ class FavoritesViewModel {
     
     //MARK: - preview
     static var example: FavoritesViewModel {
-        let vm = FavoritesViewModel(manageFavoritesUseCase: DefaultManageFavoritesUseCase(storage: MockFavoriteStorage()))
+        let vm = FavoritesViewModel(
+            manageFavoritesUseCase: DefaultManageFavoritesUseCase(
+                repository: DefaultFavoritesRepository(storage: MockFavoriteStorage())
+            )
+        )
         vm.favoriteIDs = ["2baf70d1-42bb-4437-b551-e5fed5a87abe"]
         
         return vm

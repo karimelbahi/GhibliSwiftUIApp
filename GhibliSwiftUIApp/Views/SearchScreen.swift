@@ -47,6 +47,8 @@ struct SearchScreen: View {
 #Preview {
     SearchScreen(
         favoritesViewModel: .example,
-        searchFilmsUseCase: DefaultSearchFilmsUseCase(service: MockGhibliService())
+        searchFilmsUseCase: DefaultSearchFilmsUseCase(
+            repository: DefaultGhibliRepository(service: MockGhibliService())
+        )
     )
 }
