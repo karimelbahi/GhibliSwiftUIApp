@@ -14,9 +14,9 @@ struct SearchScreen: View {
     let favoritesViewModel: FavoritesViewModel
     
     init(favoritesViewModel: FavoritesViewModel,
-         service: GhibliService = DefaultGhibliService()) {
+         searchFilmsUseCase: SearchFilmsUseCase = DefaultSearchFilmsUseCase()) {
         self.favoritesViewModel = favoritesViewModel
-        self.searchViewModel = SearchFilmsViewModel(service: service)
+        self.searchViewModel = SearchFilmsViewModel(searchFilmsUseCase: searchFilmsUseCase)
     }
     
     var body: some View {
@@ -45,5 +45,8 @@ struct SearchScreen: View {
 }
 
 #Preview {
-    SearchScreen(favoritesViewModel: FavoritesViewModel(service: MockFavoriteStorage()))
+    SearchScreen(
+        favoritesViewModel: .example,
+        searchFilmsUseCase: DefaultSearchFilmsUseCase(service: MockGhibliService())
+    )
 }

@@ -68,16 +68,11 @@ private struct FilmRow: View {
 
 
 #Preview {
-
-    //@State @Previewable var filmsViewModel = FilmsViewModel(service: MockGhibliService())
-    @State @Previewable var favorites = FavoritesViewModel(service: MockFavoriteStorage())
+    @Previewable @State var favorites = FavoritesViewModel.example
     
     NavigationStack {
         FilmListView(films: [Film.example, Film.exampleFavorite],
                      favoritesViewModel: favorites)
-    }
-    .task {
-        favorites.load()
     }
 }
 

@@ -13,10 +13,10 @@ class FilmsViewModel {
 
     var state: LoadingState<[Film]> = .idle
     
-    private let service: GhibliService
+    private let fetchFilmsUseCase: FetchFilmsUseCase
     
-    init(service: GhibliService = DefaultGhibliService()) {
-        self.service = service
+    init(fetchFilmsUseCase: FetchFilmsUseCase = DefaultFetchFilmsUseCase()) {
+        self.fetchFilmsUseCase = fetchFilmsUseCase
     }
     
     func fetch() async {
@@ -25,7 +25,7 @@ class FilmsViewModel {
         state = .loading
         
         do {
-            let films = try await service.fetchFilms()
+            let films = try await fetchFilmsUseCase.execute()
             self.state = .loaded(films)
         } catch let error as APIError {
             self.state = .error(error.errorDescription ?? "unknown error")
@@ -38,7 +38,7 @@ class FilmsViewModel {
 // MARK: - Preview
     
     static var example: FilmsViewModel {
-        let vm = FilmsViewModel(service: MockGhibliService())
+        let vm = FilmsViewModel(fetchFilmsUseCase: DefaultFetchFilmsUseCase(service: MockGhibliService()))
         vm.state = .loaded([Film.example, Film.exampleFavorite])
         return vm
     }

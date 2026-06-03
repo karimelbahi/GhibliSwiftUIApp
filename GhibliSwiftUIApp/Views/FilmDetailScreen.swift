@@ -12,7 +12,15 @@ struct FilmDetailScreen: View {
     let film: Film
     let favoritesViewModel: FavoritesViewModel
     
-    @State private var viewModel = FilmDetailViewModel()
+    @State private var viewModel: FilmDetailViewModel
+    
+    init(film: Film,
+         favoritesViewModel: FavoritesViewModel,
+         viewModel: FilmDetailViewModel = FilmDetailViewModel()) {
+        self.film = film
+        self.favoritesViewModel = favoritesViewModel
+        self._viewModel = State(initialValue: viewModel)
+    }
     
     var body: some View {
         ScrollView {
@@ -125,7 +133,8 @@ fileprivate struct CharacterSectionView:  View {
 
 #Preview {
     NavigationStack {
-        FilmDetailScreen(film: Film.example,
-                         favoritesViewModel: FavoritesViewModel(service: MockFavoriteStorage()))
+        FilmDetailScreen(film: .example,
+                         favoritesViewModel: .example,
+                         viewModel: .example)
     }
 }

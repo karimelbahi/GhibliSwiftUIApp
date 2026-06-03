@@ -37,5 +37,6 @@ struct FilmsScreen: View {
 }
 
 #Preview {
-    FilmsScreen(filmsViewModel: FilmsViewModel.example, favoritesViewModel: FavoritesViewModel.example)
+    FilmsScreen(filmsViewModel: .example,
+                favoritesViewModel: .example)
 }

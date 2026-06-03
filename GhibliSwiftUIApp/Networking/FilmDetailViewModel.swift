@@ -13,37 +13,20 @@ class FilmDetailViewModel {
     
     var state: LoadingState<[Person]> = .idle
     
-    private let service: GhibliService
+    private let fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
     
-    init(service: GhibliService = DefaultGhibliService()) {
-        self.service = service
+    init(fetchFilmPeopleUseCase: FetchFilmPeopleUseCase = DefaultFetchFilmPeopleUseCase()) {
+        self.fetchFilmPeopleUseCase = fetchFilmPeopleUseCase
     }
     
     func fetch(for film: Film) async {
         guard !state.isLoading else { return }
         
         state = .loading
-        
-        var loadedPeople: [Person] = []
     
         do {
-            try await withThrowingTaskGroup(of: Person.self) { group in
-                
-                for personInfoURL in film.people {
-                    group.addTask {
-                        try await self.service.fetchPerson(from: personInfoURL)
-                    }
-                }
-                
-                // collect results as they complete
-                for try await person in group {
-                    loadedPeople.append(person)
-                }
-            }
-            
-            state = .loaded(loadedPeople)
-            
-            
+            let people = try await fetchFilmPeopleUseCase.execute(for: film)
+            state = .loaded(people)
         }  catch let error as APIError {
             self.state = .error(error.errorDescription ?? "unknown error")
         } catch {
@@ -52,11 +35,35 @@ class FilmDetailViewModel {
     }
 }
 
+// MARK: - Preview
+
+extension FilmDetailViewModel {
+    static var example: FilmDetailViewModel {
+        let vm = FilmDetailViewModel(
+            fetchFilmPeopleUseCase: DefaultFetchFilmPeopleUseCase(service: MockGhibliService())
+        )
+        vm.state = .loaded([
+            Person(
+                id: "598f7048-74ff-41e0-92ef-87dc1ad980a9",
+                name: "Lusheeta Toel Ul Laputa",
+                gender: "Female",
+                age: "13",
+                eyeColor: "Black",
+                hairColor: "Black",
+                films: [],
+                species: "",
+                url: ""
+            )
+        ])
+        return vm
+    }
+}
+
 import Playgrounds
 
 #Playground {
     let service = MockGhibliService()
-    let vm = FilmDetailViewModel(service: service)
+    let vm = FilmDetailViewModel(fetchFilmPeopleUseCase: DefaultFetchFilmPeopleUseCase(service: service))
     
     let film = service.fetchFilm()
     await vm.fetch(for: film)

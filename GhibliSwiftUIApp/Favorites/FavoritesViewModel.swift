@@ -13,18 +13,18 @@ class FavoritesViewModel {
     
     private(set) var favoriteIDs: Set<String> = []
     
-    private let service: FavoriteStorage
+    private let manageFavoritesUseCase: ManageFavoritesUseCase
   
-    init( service: FavoriteStorage = DefaultFavoriteStorage()) {
-        self.service = service
+    init(manageFavoritesUseCase: ManageFavoritesUseCase = DefaultManageFavoritesUseCase()) {
+        self.manageFavoritesUseCase = manageFavoritesUseCase
     }
     
     func load() {
-        favoriteIDs = service.load()
+        favoriteIDs = manageFavoritesUseCase.load()
     }
     
     private func save() {
-        service.save(favoriteIDs: favoriteIDs)
+        manageFavoritesUseCase.save(favoriteIDs: favoriteIDs)
     }
     
     func toggleFavorite(filmID: String) {
@@ -44,7 +44,7 @@ class FavoritesViewModel {
     
     //MARK: - preview
     static var example: FavoritesViewModel {
-        let vm = FavoritesViewModel(service: MockFavoriteStorage())
+        let vm = FavoritesViewModel(manageFavoritesUseCase: DefaultManageFavoritesUseCase(storage: MockFavoriteStorage()))
         vm.favoriteIDs = ["2baf70d1-42bb-4437-b551-e5fed5a87abe"]
         
         return vm

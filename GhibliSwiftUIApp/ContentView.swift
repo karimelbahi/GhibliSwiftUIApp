@@ -9,8 +9,17 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var filmsViewModel = FilmsViewModel()
-    @State private var favoritesViewModel = FavoritesViewModel()
+    @State private var filmsViewModel: FilmsViewModel
+    @State private var favoritesViewModel: FavoritesViewModel
+    private let searchFilmsUseCase: SearchFilmsUseCase
+    
+    init(filmsViewModel: FilmsViewModel = FilmsViewModel(),
+         favoritesViewModel: FavoritesViewModel = FavoritesViewModel(),
+         searchFilmsUseCase: SearchFilmsUseCase = DefaultSearchFilmsUseCase()) {
+        _filmsViewModel = State(initialValue: filmsViewModel)
+        _favoritesViewModel = State(initialValue: favoritesViewModel)
+        self.searchFilmsUseCase = searchFilmsUseCase
+    }
     
     var body: some View {
         TabView {
@@ -29,7 +38,8 @@ struct ContentView: View {
             }
             
             Tab(role: .search) {
-                SearchScreen(favoritesViewModel: favoritesViewModel)
+                SearchScreen(favoritesViewModel: favoritesViewModel,
+                             searchFilmsUseCase: searchFilmsUseCase)
             }
         }
         .task {
@@ -41,5 +51,9 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(
+        filmsViewModel: .example,
+        favoritesViewModel: .example,
+        searchFilmsUseCase: DefaultSearchFilmsUseCase(service: MockGhibliService())
+    )
 }

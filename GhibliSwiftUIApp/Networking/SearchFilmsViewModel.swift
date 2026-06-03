@@ -14,10 +14,10 @@ class SearchFilmsViewModel {
     var state: LoadingState<[Film]> = .idle
     private var currentSearchTerm: String = ""
     
-    private let service: GhibliService
+    private let searchFilmsUseCase: SearchFilmsUseCase
     
-    init(service: GhibliService = DefaultGhibliService()) {
-        self.service = service
+    init(searchFilmsUseCase: SearchFilmsUseCase = DefaultSearchFilmsUseCase()) {
+        self.searchFilmsUseCase = searchFilmsUseCase
     }
     
     func fetch(for searchTerm: String) async {
@@ -32,10 +32,15 @@ class SearchFilmsViewModel {
         state = .loading
         
         try? await Task.sleep(for: .milliseconds(500))
-        guard !Task.isCancelled else { return }
+        guard !Task.isCancelled else {
+            if currentSearchTerm == searchTerm {
+                state = .idle
+            }
+            return
+        }
         
         do {
-            let films = try await service.searchFilm(for: searchTerm)
+            let films = try await searchFilmsUseCase.execute(searchTerm: searchTerm)
             self.state = .loaded(films)
         } catch {
             setError(error, for: searchTerm)
@@ -52,6 +57,16 @@ class SearchFilmsViewModel {
             self.state = .error("unknown error")
         }
         
+    }
+    
+// MARK: - Preview
+    
+    static var example: SearchFilmsViewModel {
+        let vm = SearchFilmsViewModel(
+            searchFilmsUseCase: DefaultSearchFilmsUseCase(service: MockGhibliService())
+        )
+        vm.state = .loaded([Film.example])
+        return vm
     }
     
 }

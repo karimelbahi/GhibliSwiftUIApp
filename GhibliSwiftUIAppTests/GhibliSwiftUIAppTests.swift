@@ -117,7 +117,7 @@ struct GhibliSwiftUIAppTests {
     @MainActor
     @Test func testInitialState() async throws {
         let service = MockGhibliService(mockFilms: mockFilms)
-        let viewModel = SearchFilmsViewModel(service: service)
+        let viewModel = SearchFilmsViewModel(searchFilmsUseCase: DefaultSearchFilmsUseCase(service: service))
         
         #expect(viewModel.state.data == nil)
         
@@ -132,7 +132,7 @@ struct GhibliSwiftUIAppTests {
     @Test("Search with query filters results")
     func testSearchWithQuery() async {
         let service = MockGhibliService(mockFilms: mockFilms)
-        let viewModel = SearchFilmsViewModel(service: service)
+        let viewModel = SearchFilmsViewModel(searchFilmsUseCase: DefaultSearchFilmsUseCase(service: service))
 
         await viewModel.fetch(for: "Totoro")
     
@@ -145,7 +145,7 @@ struct GhibliSwiftUIAppTests {
     func testSearchWithError() async {
         let service = MockGhibliService(mockFilms: mockFilms,
                                         shouldThrowError: true)
-        let viewModel = SearchFilmsViewModel(service: service)
+        let viewModel = SearchFilmsViewModel(searchFilmsUseCase: DefaultSearchFilmsUseCase(service: service))
         
         await viewModel.fetch(for: "Totoro")
     
@@ -157,7 +157,7 @@ struct GhibliSwiftUIAppTests {
     func testCancellationAfterAPICall() async {
         let service = MockGhibliService(mockFilms: mockFilms,
                                         fetchDelay: .milliseconds(100))
-        let viewModel = SearchFilmsViewModel(service: service)
+        let viewModel = SearchFilmsViewModel(searchFilmsUseCase: DefaultSearchFilmsUseCase(service: service))
         
         let task = Task {
             print("started task")
@@ -182,7 +182,7 @@ struct GhibliSwiftUIAppTests {
     func testDebounceTiming() async {
         let service = MockGhibliService(mockFilms: mockFilms,
                                         fetchDelay: .milliseconds(100))
-        let viewModel = SearchFilmsViewModel(service: service)
+        let viewModel = SearchFilmsViewModel(searchFilmsUseCase: DefaultSearchFilmsUseCase(service: service))
         
         let task = Task {
             await viewModel.fetch(for: "tot")
@@ -207,7 +207,7 @@ struct GhibliSwiftUIAppTests {
     func testDebounceWithMultipleSearches() async {
         let service = MockGhibliService(mockFilms: mockFilms)
         
-        let viewModel = SearchFilmsViewModel(service: service)
+        let viewModel = SearchFilmsViewModel(searchFilmsUseCase: DefaultSearchFilmsUseCase(service: service))
         
         // Simulate rapid typing: "t", "to", "tot", "toto", "totor", "totoro"
         let searchQueries = ["t", "to", "tot", "toto", "totor", "totoro"]
@@ -243,7 +243,7 @@ struct GhibliSwiftUIAppTests {
     func testDebounceWithSlowMultipleSearches() async {
         let service = MockGhibliService(mockFilms: mockFilms)
         
-        let viewModel = SearchFilmsViewModel(service: service)
+        let viewModel = SearchFilmsViewModel(searchFilmsUseCase: DefaultSearchFilmsUseCase(service: service))
         
         // Simulate rapid typing: "t", "to", "tot", "toto", "totor", "totoro"
         let searchQueries = ["tot", "totor", "totoro"]
