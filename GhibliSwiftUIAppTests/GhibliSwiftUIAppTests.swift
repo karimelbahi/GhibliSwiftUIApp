@@ -73,10 +73,9 @@ struct GhibliSwiftUIAppTests {
 
     @MainActor
     func makeSearchViewModel(service: MockGhibliService) -> SearchFilmsViewModel {
-        SearchFilmsViewModel(
-            searchFilmsUseCase: DefaultSearchFilmsUseCase(
-                repository: DefaultGhibliRepository(service: service)
-            )
+        let repository = DefaultGhibliRepository(service: service)
+        return SearchFilmsViewModel(
+            searchFilmsUseCase: DefaultSearchFilmsUseCase(repository: repository)
         )
     }
 
