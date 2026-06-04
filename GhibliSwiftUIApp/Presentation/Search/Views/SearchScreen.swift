@@ -7,7 +7,7 @@ import SwiftUI
 public struct SearchScreen: View {
 
     @State private var text: String = ""
-    @State private var searchViewModel: SearchFilmsViewModel
+    let searchViewModel: SearchFilmsViewModel
     let favoritesViewModel: FavoritesViewModel
     let fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
 
@@ -16,7 +16,7 @@ public struct SearchScreen: View {
         favoritesViewModel: FavoritesViewModel,
         fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
     ) {
-        _searchViewModel = State(initialValue: searchViewModel)
+        self.searchViewModel = searchViewModel
         self.favoritesViewModel = favoritesViewModel
         self.fetchFilmPeopleUseCase = fetchFilmPeopleUseCase
     }
