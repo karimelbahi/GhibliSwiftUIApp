@@ -127,16 +127,17 @@ Packages/GhibliKit/                  # Local Swift package
 - **Settings** — appearance theme and preferences stored in UserDefaults
 
 <p float="left">
-  <img src="images/ghibli_movie_list.jpeg" width="40%" />
-  <img src="/images/ghibli_movie_detail.jpeg" width="40%" />
+  <img src="images/ghibli_movie_list.jpeg" width="33%" />
+  <img src="/images/ghibli_movie_detail.jpeg" width="33%" />
+  <img src="/images/ghibli_favorites.jpeg" width="33%" />
 </p>
 
 <p float="left">
-  <img src="/images/ghibli_favorites.jpeg" width="40%" />
-  <img src="/images/ghibli_search.jpeg" width="40%" />
+  <img src="/images/ghibli_search.jpeg" width="33%" />
+  <img src="/images/ghibli_settings.jpeg" width="33%">
 </p>
 
-<img src="/images/ghibli_settings.jpeg" width="40%">
+
 
 ## Testing
 
