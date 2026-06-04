@@ -20,7 +20,9 @@ public class FilmDetailViewModel {
     public func fetch(for film: Film) async {
         guard !state.isLoading else { return }
 
-        state = .loading
+        if case .idle = state {
+            state = .loading
+        }
 
         do {
             let people = try await fetchFilmPeopleUseCase.execute(for: film)

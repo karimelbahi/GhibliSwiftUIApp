@@ -1,14 +1,14 @@
 # GhibliSwiftUIApp
 
-A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app/), built with **Clean Architecture + MVVM** and a local **GhibliKit** Swift package.
+A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app/), built with **Clean Architecture + MVVM**, manual dependency injection, and **offline-first** caching via **SwiftData**.
 
 ## Tech Stack
 
 - iOS 17+
 - SwiftUI with `@Observable` (Observation framework)
 - URLSession with async/await
-- Clean Architecture (Domain, Data, Presentation) + MVVM
-- Local Swift Package (`GhibliKit`) for compile-time layer boundaries
+- **SwiftData** for offline-first local caching (films catalog + film people)
+- Clean Architecture (Domain, Data, Presentation, App) + MVVM
 - Swift Testing with mocks and dependency injection
 
 ## API
@@ -19,7 +19,7 @@ A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app
 
 ## Architecture
 
-The app is split into four layers. **ViewModels** talk only to **Use Case protocols**. **Use Case implementations** talk only to **Repository protocols**. **Repository implementations** talk to **Services**, which decode **DTOs** and map them to **Domain entities** before data crosses into the Domain layer.
+The app is organized into four **logical layers** inside the `GhibliSwiftUIApp` target. **ViewModels** talk only to **use case protocols**. **Use case implementations** talk only to **repository protocols**. **Repository implementations** coordinate **network services**, **SwiftData cache**, and **local storage** (UserDefaults for favorites).
 
 ```mermaid
 flowchart TB
@@ -30,7 +30,7 @@ flowchart TB
     end
 
     subgraph Domain
-        Entities
+        Entities["Entities (Film, Person)"]
         UseCaseProtocols
         UseCaseImpls
         RepoProtocols
@@ -38,92 +38,158 @@ flowchart TB
     end
 
     subgraph Data
-        RepoImpls
-        Services
+        OfflineRepo["OfflineFirstGhibliRepository"]
+        RemoteRepo["DefaultGhibliRepository"]
+        FavoritesRepo["DefaultFavoritesRepository"]
+        CacheStore["GhibliCacheStore / SwiftData"]
+        SwiftDataModels["CachedFilm, CachedPerson, CachedFilmPeople"]
+        Services["GhibliService"]
         DTOs
         Mappers
+        FavoriteStorage["FavoriteStorage (UserDefaults)"]
         APIError
     end
 
     subgraph App
+        AppEntry["GhibliSwiftUIAppApp"]
+        CacheContainer["GhibliCacheContainer"]
         AppDependencies
     end
 
     Views --> ViewModels
     ViewModels --> UseCaseProtocols
     UseCaseImpls --> RepoProtocols
-    RepoImpls --> Services
+    RepoProtocols -.-> OfflineRepo
+    RepoProtocols -.-> FavoritesRepo
+    OfflineRepo --> CacheStore
+    OfflineRepo --> RemoteRepo
+    CacheStore --> SwiftDataModels
+    RemoteRepo --> Services
+    FavoritesRepo --> FavoriteStorage
     Services --> DTOs
     DTOs --> Mappers
     Mappers --> Entities
+    AppEntry --> CacheContainer
+    AppEntry --> AppDependencies
     AppDependencies --> ViewModels
     AppDependencies --> UseCaseImpls
-    AppDependencies --> RepoImpls
+    AppDependencies --> OfflineRepo
+    AppDependencies --> FavoritesRepo
     AppDependencies --> Services
+    CacheContainer --> CacheStore
 ```
 
 ### Layer responsibilities
 
-| Layer | Module | Responsibility |
-|-------|--------|----------------|
-| **App** | `GhibliSwiftUIApp` | Composition root (`AppDependencies`), entry point, assets, previews |
-| **Presentation** | `GhibliPresentation` | SwiftUI views, `@Observable` view models, `LoadingState` |
-| **Domain** | `GhibliDomain` | Pure Swift entities, use cases, repository protocols, `DomainError` |
-| **Data** | `GhibliData` | Repository implementations, network/local services, DTOs, mappers, `APIError` |
+| Layer | Location | Responsibility |
+|-------|----------|----------------|
+| **App** | `App/` | Composition root (`AppDependencies`, `GhibliCacheContainer`), `ContentView`, app entry, `.modelContainer` |
+| **Presentation** | `Presentation/` | SwiftUI views, `@Observable` view models, `LoadingState` |
+| **Domain** | `Domain/` | Pure Swift entities, use case + repository **protocols**, default use cases, `DomainError` |
+| **Data** | `Data/` | Repository implementations, SwiftData cache, network/local services, DTOs, mappers, `APIError` |
 
-### Module dependencies
+**Dependency rule:** Presentation and Data depend on Domain. Domain does not import Presentation or Data.
 
+### Composition root (`AppDependencies`)
+
+`AppDependencies` is the **only** place that wires concrete types:
+
+| Production (`live`) | Preview (`preview`) |
+|---------------------|---------------------|
+| `GhibliCacheContainer` + SwiftData | `NullGhibliCacheStore` (no disk cache) |
+| `OfflineFirstGhibliRepository` → `DefaultGhibliRepository` + cache | Same stack with `MockGhibliService` |
+| `DefaultFavoriteStorage` | `MockFavoriteStorage` |
+
+### Offline-first data flow
+
+```mermaid
+sequenceDiagram
+    participant VM as ViewModel
+    participant UC as Use Case
+    participant OF as OfflineFirstGhibliRepository
+    participant Cache as SwiftData Cache
+    participant Remote as DefaultGhibliRepository
+    participant API as Ghibli API
+
+    VM->>UC: execute()
+    UC->>OF: fetchFilms() / search / fetchPeople
+    OF->>Cache: load cached data
+    alt cache hit
+        Cache-->>OF: domain models
+        OF-->>UC: return cache immediately
+        OF->>Remote: background refresh
+        Remote->>API: network request
+        API-->>Remote: DTOs
+        Remote-->>OF: domain models
+        OF->>Cache: save updated cache
+    else cache miss
+        OF->>Remote: fetch from network
+        Remote->>API: network request
+        API-->>Remote: DTOs
+        Remote-->>OF: domain models
+        OF->>Cache: save cache
+        OF-->>UC: return fresh data
+    end
+    UC-->>VM: update UI state
 ```
-GhibliSwiftUIApp  →  GhibliPresentation, GhibliData, GhibliDomain
-GhibliPresentation  →  GhibliDomain
-GhibliData  →  GhibliDomain
-GhibliDomain  →  (no dependencies)
-```
 
-`AppDependencies` is the **only** place that wires concrete types (`DefaultGhibliService`, `DefaultGhibliRepository`, `DefaultFetchFilmsUseCase`, etc.).
+**Policies:**
+
+1. **Read** — return SwiftData cache when available (stale-while-revalidate).
+2. **Refresh** — when cache exists, update from the API in a background `Task`.
+3. **Fallback** — on network errors, return cache when possible instead of failing the screen.
+4. **Search offline** — filter cached films locally when the catalog is already stored.
+
+Favorites use **UserDefaults** via `FavoriteStorage` (not SwiftData).
 
 ## Project Structure
 
 ```
-GhibliSwiftUIApp/                    # App target
+GhibliSwiftUIApp/
 ├── App/
-│   ├── GhibliSwiftUIAppApp.swift
+│   ├── GhibliSwiftUIAppApp.swift      # ModelContainer + AppDependencies
 │   ├── ContentView.swift
-│   └── DI/AppDependencies.swift
+│   └── DI/
+│       ├── AppDependencies.swift      # live() / preview() wiring
+│       └── GhibliCacheContainer.swift
+├── Domain/
+│   ├── Entities/                      Film, Person
+│   ├── Errors/                        DomainError
+│   ├── Repositories/                  GhibliRepository, FavoritesRepository (protocols)
+│   └── UseCases/                      FetchFilms, SearchFilms, FetchFilmPeople, ManageFavorites
+├── Data/
+│   ├── DTOs/                          FilmDTO, PersonDTO
+│   ├── Mappers/                       FilmMapper, PersonMapper, CacheEntityMapper, APIError+DomainError
+│   ├── Network/                       GhibliService, Default/MockGhibliService
+│   ├── Local/                         FavoriteStorage, Default/MockFavoriteStorage
+│   ├── SwiftData/
+│   │   ├── Models/                    CachedFilm, CachedPerson, CachedFilmPeople
+│   │   ├── GhibliCacheStore.swift     # protocol + NullGhibliCacheStore
+│   │   ├── GhibliSwiftDataStack.swift
+│   │   ├── SwiftDataGhibliCacheStore.swift
+│   │   └── SwiftDataGhibliCacheStoreBridge.swift
+│   └── Repositories/
+│       ├── DefaultGhibliRepository.swift      # network-only
+│       ├── OfflineFirstGhibliRepository.swift # cache + network
+│       └── DefaultFavoritesRepository.swift
+├── Presentation/
+│   ├── Common/                        LoadingState
+│   ├── Films/                         ViewModels + Views
+│   ├── Search/
+│   ├── Favorites/
+│   └── Settings/
 ├── PreviewSupport/
 ├── Preview Assets/
 └── Assets.xcassets/
-
-Packages/GhibliKit/                  # Local Swift package
-├── Package.swift
-└── Sources/
-    ├── GhibliDomain/
-    │   ├── Entities/                Film, Person
-    │   ├── Errors/                  DomainError
-    │   ├── Repositories/            GhibliRepository, FavoritesRepository
-    │   └── UseCases/                FetchFilms, SearchFilms, FetchFilmPeople, ManageFavorites
-    ├── GhibliData/
-    │   ├── DTOs/                    FilmDTO, PersonDTO
-    │   ├── Mappers/                 FilmMapper, PersonMapper, APIError+DomainError
-    │   ├── Network/                 GhibliService, DefaultGhibliService, MockGhibliService
-    │   ├── Local/                   FavoriteStorage, Default/MockFavoriteStorage
-    │   ├── Repositories/            DefaultGhibliRepository, DefaultFavoritesRepository
-    │   └── Resources/               SampleData.json
-    └── GhibliPresentation/
-        ├── Common/                  LoadingState
-        ├── Films/                   ViewModels + Views
-        ├── Search/
-        ├── Favorites/
-        └── Settings/
 ```
 
 ## Features
 
 - TabView with Navigation Stacks
-- **Movies** — fetch films from the API and display a list
-- **Detail** — film info, async image loading, parallel character fetch
+- **Movies** — offline-first film list (cache first, background refresh, network fallback)
+- **Detail** — film info, async image loading, cached characters with network refresh
 - **Favorites** — local persistence via UserDefaults
-- **Search** — client-side filter with 500ms debounce
+- **Search** — client-side filter with 500ms debounce (works offline when films are cached)
 - **Settings** — appearance theme and preferences stored in UserDefaults
 
 <p float="left">
@@ -137,8 +203,8 @@ Packages/GhibliKit/                  # Local Swift package
   <img src="/images/ghibli_settings.jpeg" width="33%">
 </p>
 
-
-
 ## Testing
 
-Unit tests cover `SearchFilmsViewModel` debounce, cancellation, and error handling. Tests inject a mock `GhibliService` through `DefaultGhibliRepository` → `DefaultSearchFilmsUseCase`, mirroring the production wiring in `AppDependencies`.
+Unit tests cover `SearchFilmsViewModel` debounce, cancellation, and error handling. Tests inject a mock `GhibliService` through `DefaultGhibliRepository` → `DefaultSearchFilmsUseCase` (network path without SwiftData), matching how preview dependencies are wired.
+
+To test offline-first behavior, use `OfflineFirstGhibliRepository` with an in-memory `ModelContainer` and a mock remote repository.

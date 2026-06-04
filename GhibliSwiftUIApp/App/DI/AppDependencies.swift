@@ -10,8 +10,13 @@ public struct AppDependencies {
     public let searchFilmsViewModel: SearchFilmsViewModel
     public let fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
 
-    public static func live() -> AppDependencies {
-        let ghibliRepository = DefaultGhibliRepository(service: DefaultGhibliService())
+    @MainActor
+    public static func live(cacheContainer: GhibliCacheContainer) -> AppDependencies {
+        let remoteRepository = DefaultGhibliRepository(service: DefaultGhibliService())
+        let ghibliRepository = OfflineFirstGhibliRepository(
+            remote: remoteRepository,
+            cache: cacheContainer.cacheStore
+        )
         let favoritesRepository = DefaultFavoritesRepository(storage: DefaultFavoriteStorage())
 
         let fetchFilmsUseCase = DefaultFetchFilmsUseCase(repository: ghibliRepository)
@@ -30,7 +35,11 @@ public struct AppDependencies {
     #if DEBUG
     @MainActor
     public static func preview() -> AppDependencies {
-        let ghibliRepository = DefaultGhibliRepository(service: MockGhibliService())
+        let remoteRepository = DefaultGhibliRepository(service: MockGhibliService())
+        let ghibliRepository = OfflineFirstGhibliRepository(
+            remote: remoteRepository,
+            cache: NullGhibliCacheStore()
+        )
         let favoritesRepository = DefaultFavoritesRepository(storage: MockFavoriteStorage())
 
         let fetchFilmsUseCase = DefaultFetchFilmsUseCase(repository: ghibliRepository)
