@@ -148,6 +148,8 @@ sequenceDiagram
 
 Favorites use **UserDefaults** via `FavoriteStorage` (not SwiftData).
 
+**Character loading note:** some films (e.g. *Arrietty*) return placeholder people URLs like `.../people/` instead of `.../people/{id}`. `DefaultGhibliRepository` filters those invalid collection URLs, skips per-person decode failures, and returns an empty list instead of surfacing a screen error.
+
 ### Navigation (Coordinator)
 
 Navigation is handled by **coordinators** in `App/Coordinator/`. Views render UI; coordinators own `NavigationStack`, `NavigationPath`, and push destinations.
@@ -167,16 +169,40 @@ flowchart TB
     FilmsCoordinator --> FilmDetailScreen
     FavoritesCoordinator --> FilmDetailScreen
     SearchCoordinator --> FilmDetailScreen
+
+    FilmDetailScreen --> PersonDetailScreen
 ```
 
-**Flow:** user taps a film in `FilmListView` → `FilmCoordinatorRoute.detail(film)` is pushed → the tab coordinator's `CoordinatorNavigationStack` presents `FilmDetailScreen`.
+**Flows:**
+
+1. **Film list → detail** — user taps a film in `FilmListView` → `FilmCoordinatorRoute.detail(film)` is pushed → `CoordinatorNavigationStack` presents `FilmDetailScreen`.
+2. **Film detail → person detail** — user taps a character → `FilmCoordinatorRoute.personDetail(person)` is pushed → `CoordinatorNavigationStack` presents `PersonDetailScreen`.
 
 **Responsibilities:**
 
 1. **`AppCoordinator`** — owns the `TabView`, creates child coordinators, runs startup tasks (load favorites, fetch films).
-2. **`FilmsCoordinator` / `FavoritesCoordinator` / `SearchCoordinator`** — each owns a `NavigationPath`, wraps its root screen, and builds `FilmDetailScreen`.
-3. **`FilmCoordinatorRoute`** — shared route enum (currently `.detail(Film)`).
-4. **Views** — no longer own `NavigationStack`; they receive a coordinator and focus on layout and state display.
+2. **`FilmsCoordinator` / `FavoritesCoordinator` / `SearchCoordinator`** — each owns a `NavigationPath`, wraps its root screen, and builds pushed destinations.
+3. **`FilmCoordinatorRoute`** — shared route enum (`.detail(Film)`, `.personDetail(Person)`).
+4. **`CoordinatorNavigationStack`** — binds `NavigationStack(path:)` and maps each route case to a screen.
+5. **Views** — no longer own `NavigationStack`; they push routes and focus on layout/state.
+
+#### Adding a new screen
+
+| Step | Action | Example |
+|------|--------|---------|
+| 1 | Add a route case | `case personDetail(Person)` in `FilmCoordinatorRoute` |
+| 2 | Create the view (UI only) | `PersonDetailScreen.swift` |
+| 3a | Map route → screen | `case .personDetail(let person):` in `CoordinatorNavigationStack` |
+| 3b | Add screen factory (required) | `personDetailScreen(for:)` in `FilmNavigationCoordinating` |
+| 3c | Add `show*` helper (optional) | `showPersonDetail(_:)` for programmatic navigation |
+| 4 | Trigger navigation | `NavigationLink(value:)` or `showPersonDetail(_:)` |
+
+**Why two coordinator methods per screen?**
+
+- `showPersonDetail(_:)` — **navigates** by appending a route to `path` (for buttons/tasks).
+- `personDetailScreen(for:)` — **builds** the destination view when the route is active (used by `navigationDestination`).
+
+If you only use `NavigationLink(value:)`, the `show*` helper is optional.
 
 ## Project Structure
 
@@ -219,7 +245,7 @@ GhibliSwiftUIApp/
 │       └── DefaultFavoritesRepository.swift
 ├── Presentation/
 │   ├── Common/                        LoadingState
-│   ├── Films/                         ViewModels + Views
+│   ├── Films/                         ViewModels + Views (Films, FilmDetail, PersonDetail, FilmList)
 │   ├── Search/
 │   ├── Favorites/
 │   └── Settings/
@@ -239,7 +265,8 @@ GhibliSwiftUIAppTests/
 
 - TabView with per-tab coordinators owning navigation stacks
 - **Movies** — offline-first film list (cache first, background refresh, network fallback)
-- **Detail** — film info, async image loading, cached characters with network refresh
+- **Detail** — film info, async image loading, cached characters with network refresh; tap a character to open person detail
+- **Person detail** — character profile screen pushed via coordinator routes
 - **Favorites** — local persistence via UserDefaults
 - **Search** — client-side filter with 500ms debounce (works offline when films are cached)
 - **Settings** — appearance theme and preferences stored in UserDefaults
