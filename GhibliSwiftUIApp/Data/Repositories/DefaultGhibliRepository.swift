@@ -26,22 +26,40 @@ public struct DefaultGhibliRepository: GhibliRepository {
     }
 
     public func fetchPeople(for film: Film) async throws -> [Person] {
-        try await mapErrors {
-            var loadedPeople: [Person] = []
+        let personURLs = Self.validPersonURLs(from: film.people)
 
-            try await withThrowingTaskGroup(of: Person.self) { group in
-                for personInfoURL in film.people {
-                    group.addTask {
-                        try await self.service.fetchPerson(from: personInfoURL)
-                    }
-                }
+        // The API sometimes returns collection placeholders like ".../people/" with no ID.
+        guard !personURLs.isEmpty else { return [] }
 
-                for try await person in group {
-                    loadedPeople.append(person)
+        return await withTaskGroup(of: Person?.self) { group in
+            for personURL in personURLs {
+                group.addTask {
+                    try? await self.service.fetchPerson(from: personURL)
                 }
             }
 
+            var loadedPeople: [Person] = []
+            for await person in group {
+                if let person {
+                    loadedPeople.append(person)
+                }
+            }
             return loadedPeople
+        }
+    }
+
+    /// Keeps only person resource URLs (e.g. `/people/{id}`), not collection endpoints (`/people/`).
+    static func validPersonURLs(from urls: [String]) -> [String] {
+        urls.filter { urlString in
+            guard let url = URL(string: urlString) else { return false }
+
+            let pathComponents = url.pathComponents.filter { $0 != "/" }
+            guard pathComponents.count >= 2 else { return false }
+
+            let resourceID = pathComponents[pathComponents.count - 1]
+            let resourceType = pathComponents[pathComponents.count - 2]
+
+            return resourceType == "people" && !resourceID.isEmpty
         }
     }
 

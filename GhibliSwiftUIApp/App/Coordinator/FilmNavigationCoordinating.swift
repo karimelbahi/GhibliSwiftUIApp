@@ -47,4 +47,19 @@ extension FilmNavigationCoordinating {
             fetchFilmPeopleUseCase: fetchFilmPeopleUseCase
         )
     }
+
+    //showPersonDetail = “push this route”
+    //personDetailScreen = “this route means this view”
+    
+    // STEP 3b (optional): Programmatic navigation to person detail.
+    // Same pattern as showFilmDetail(_:), useful for buttons/tasks not using NavigationLink.
+    public func showPersonDetail(_ person: Person) {
+        path.append(FilmCoordinatorRoute.personDetail(person))
+    }
+
+    // STEP 3c: Coordinator factory for the new destination screen.
+    @ViewBuilder
+    public func personDetailScreen(for person: Person) -> PersonDetailScreen {
+        PersonDetailScreen(person: person)
+    }
 }

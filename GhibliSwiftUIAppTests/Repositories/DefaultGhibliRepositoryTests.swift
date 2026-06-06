@@ -69,7 +69,40 @@ struct DefaultGhibliRepositoryTests {
         let callCount = await service.fetchPersonCallCount
         let fetchedURLs = await service.fetchedPersonURLs
         #expect(callCount == 2)
-        #expect(Set(fetchedURLs) == Set(TestFixtures.filmWithPeople.people))
+        #expect(
+            Set(fetchedURLs) == Set([
+                "https://ghibliapi.vercel.app/people/p1",
+                "https://ghibliapi.vercel.app/people/p2"
+            ])
+        )
+    }
+
+    @Test("Fetch people returns empty list for placeholder people URLs")
+    func fetchPeopleReturnsEmptyForPlaceholderURLs() async throws {
+        let service = MockGhibliService(mockPerson: TestFixtures.people[0])
+        let repository = makeRepository(service: service)
+
+        let people = try await repository.fetchPeople(for: TestFixtures.filmWithPlaceholderPeopleURLs)
+
+        #expect(people.isEmpty)
+
+        let callCount = await service.fetchPersonCallCount
+        #expect(callCount == 0)
+    }
+
+    @Test("Fetch people skips placeholder URLs and loads valid ones")
+    func fetchPeopleSkipsPlaceholderURLs() async throws {
+        let service = MockGhibliService(mockPerson: TestFixtures.people[0])
+        let repository = makeRepository(service: service)
+
+        let people = try await repository.fetchPeople(for: TestFixtures.filmWithMixedPeopleURLs)
+
+        #expect(people.count == 1)
+
+        let callCount = await service.fetchPersonCallCount
+        let fetchedURLs = await service.fetchedPersonURLs
+        #expect(callCount == 1)
+        #expect(fetchedURLs == ["https://ghibliapi.vercel.app/people/p1"])
     }
 
     @Test("Maps network API errors to domain errors")

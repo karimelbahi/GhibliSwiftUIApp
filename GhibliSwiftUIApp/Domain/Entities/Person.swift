@@ -5,7 +5,7 @@
 import Foundation
 
 nonisolated
-public struct Person: Identifiable, Equatable, Sendable {
+public struct Person: Identifiable, Equatable, Hashable, Sendable {
     public let id: String
     public let name: String
     public let gender: String

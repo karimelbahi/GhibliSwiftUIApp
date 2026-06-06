@@ -25,11 +25,14 @@ struct CoordinatorNavigationStack<Coordinator: FilmNavigationCoordinating, Root:
             // Show the tab's root screen.
             root(coordinator)
                 // When a route is pushed, decide which screen to present.
+                // STEP 3a: Register how each route maps to a screen.
                 .navigationDestination(for: FilmCoordinatorRoute.self) { route in
                     switch route {
                     case .detail(let film):
-                        // Coordinator builds detail screen (not the list view).
                         coordinator.filmDetailScreen(for: film)
+
+                    case .personDetail(let person):
+                        coordinator.personDetailScreen(for: person)
                     }
                 }
         }

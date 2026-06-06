@@ -20,6 +20,12 @@ import SwiftUI
     }
 }
 
+#Preview("Person Detail") {
+    NavigationStack {
+        PersonDetailScreen(person: PreviewData.samplePerson)
+    }
+}
+
 #Preview("Film Images") {
     FilmImageView(url: URL.convertAssetImage(named: "posterImage"))
         .frame(height: 150)

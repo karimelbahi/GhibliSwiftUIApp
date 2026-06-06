@@ -50,6 +50,37 @@ enum TestFixtures {
         )
     ]
 
+    static let filmWithPlaceholderPeopleURLs = Film(
+        id: "arrietty",
+        title: "Arrietty",
+        description: "Tiny borrowers live under the floorboards.",
+        director: "Hiromasa Yonebayashi",
+        producer: "Toshio Suzuki",
+        releaseYear: "2010",
+        score: "95",
+        duration: "94",
+        image: "",
+        bannerImage: "",
+        people: ["https://ghibliapi.vercel.app/people/"]
+    )
+
+    static let filmWithMixedPeopleURLs = Film(
+        id: "mixed",
+        title: "Mixed People URLs",
+        description: "",
+        director: "",
+        producer: "",
+        releaseYear: "",
+        score: "",
+        duration: "",
+        image: "",
+        bannerImage: "",
+        people: [
+            "https://ghibliapi.vercel.app/people/",
+            "https://ghibliapi.vercel.app/people/p1"
+        ]
+    )
+
     static let filmWithPeople = Film(
         id: "3",
         title: "Princess Mononoke",
@@ -61,7 +92,10 @@ enum TestFixtures {
         duration: "",
         image: "",
         bannerImage: "",
-        people: ["https://api/p1", "https://api/p2"]
+        people: [
+            "https://ghibliapi.vercel.app/people/p1",
+            "https://ghibliapi.vercel.app/people/p2"
+        ]
     )
 
     static let people: [Person] = [

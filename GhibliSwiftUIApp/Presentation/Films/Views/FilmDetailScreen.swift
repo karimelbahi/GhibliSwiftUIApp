@@ -110,20 +110,30 @@ fileprivate struct CharacterSectionView: View {
                 case .loading: ProgressView()
 
                 case .loaded(let people):
-                    ForEach(people) { person in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(person.name)
+                    if people.isEmpty {
+                        Text("No character data available for this film.")
+                            .foregroundStyle(.secondary)
+                            .font(.subheadline)
+                    }
 
-                            HStack(spacing: 8) {
-                                Label(person.gender, systemImage: "person.fill")
-                                Text("Age: \(person.age)")
-                                Spacer()
-                                Label(person.eyeColor, systemImage: "eye")
-                                Text("Hair: \(person.hairColor)")
+                    ForEach(people) { person in
+                        // STEP 4: Push a coordinator route (same pattern as FilmListView).
+                        // NavigationStack in CoordinatorNavigationStack resolves this route.
+                        NavigationLink(value: FilmCoordinatorRoute.personDetail(person)) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(person.name)
+
+                                HStack(spacing: 8) {
+                                    Label(person.gender, systemImage: "person.fill")
+                                    Text("Age: \(person.age)")
+                                    Spacer()
+                                    Label(person.eyeColor, systemImage: "eye")
+                                    Text("Hair: \(person.hairColor)")
+                                }
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                                .lineLimit(1)
                             }
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                            .lineLimit(1)
                         }
                     }
 
