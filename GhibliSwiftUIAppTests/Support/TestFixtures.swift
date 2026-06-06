@@ -50,6 +50,20 @@ enum TestFixtures {
         )
     ]
 
+    static let filmWithPeople = Film(
+        id: "3",
+        title: "Princess Mononoke",
+        description: "A prince fights to save the forest",
+        director: "Hayao Miyazaki",
+        producer: "Toshio Suzuki",
+        releaseYear: "1997",
+        score: "92",
+        duration: "",
+        image: "",
+        bannerImage: "",
+        people: ["https://api/p1", "https://api/p2"]
+    )
+
     static let people: [Person] = [
         Person(
             id: "p1",
