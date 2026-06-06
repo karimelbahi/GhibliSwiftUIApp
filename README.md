@@ -9,6 +9,7 @@ A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app
 - URLSession with async/await
 - **SwiftData** for offline-first local caching (films catalog + film people)
 - Clean Architecture (Domain, Data, Presentation, App) + MVVM
+- **Coordinator pattern** for tab and navigation flow
 - Swift Testing with mocks and dependency injection
 
 ## API
@@ -54,6 +55,8 @@ flowchart TB
         AppEntry["GhibliSwiftUIAppApp"]
         CacheContainer["GhibliCacheContainer"]
         AppDependencies
+        AppCoordinator
+        TabCoordinators["Films / Favorites / Search Coordinators"]
     end
 
     Views --> ViewModels
@@ -70,7 +73,10 @@ flowchart TB
     DTOs --> Mappers
     Mappers --> Entities
     AppEntry --> CacheContainer
-    AppEntry --> AppDependencies
+    AppEntry --> AppCoordinator
+    AppCoordinator --> AppDependencies
+    AppCoordinator --> TabCoordinators
+    TabCoordinators --> Views
     AppDependencies --> ViewModels
     AppDependencies --> UseCaseImpls
     AppDependencies --> OfflineRepo
@@ -83,7 +89,7 @@ flowchart TB
 
 | Layer | Location | Responsibility |
 |-------|----------|----------------|
-| **App** | `App/` | Composition root (`AppDependencies`, `GhibliCacheContainer`), `ContentView`, app entry, `.modelContainer` |
+| **App** | `App/` | Composition root (`AppDependencies`, `GhibliCacheContainer`), coordinators, `ContentView`, app entry, `.modelContainer` |
 | **Presentation** | `Presentation/` | SwiftUI views, `@Observable` view models, `LoadingState` |
 | **Domain** | `Domain/` | Pure Swift entities, use case + repository **protocols**, default use cases, `DomainError` |
 | **Data** | `Data/` | Repository implementations, SwiftData cache, network/local services, DTOs, mappers, `APIError` |
@@ -142,13 +148,52 @@ sequenceDiagram
 
 Favorites use **UserDefaults** via `FavoriteStorage` (not SwiftData).
 
+### Navigation (Coordinator)
+
+Navigation is handled by **coordinators** in `App/Coordinator/`. Views render UI; coordinators own `NavigationStack`, `NavigationPath`, and push destinations.
+
+```mermaid
+flowchart TB
+    AppCoordinator --> FilmsCoordinator
+    AppCoordinator --> FavoritesCoordinator
+    AppCoordinator --> SearchCoordinator
+    AppCoordinator --> SettingsCoordinator
+
+    FilmsCoordinator --> FilmsScreen
+    FavoritesCoordinator --> FavoritesScreen
+    SearchCoordinator --> SearchScreen
+    SettingsCoordinator --> SettingsScreen
+
+    FilmsCoordinator --> FilmDetailScreen
+    FavoritesCoordinator --> FilmDetailScreen
+    SearchCoordinator --> FilmDetailScreen
+```
+
+**Flow:** user taps a film in `FilmListView` → `FilmCoordinatorRoute.detail(film)` is pushed → the tab coordinator's `CoordinatorNavigationStack` presents `FilmDetailScreen`.
+
+**Responsibilities:**
+
+1. **`AppCoordinator`** — owns the `TabView`, creates child coordinators, runs startup tasks (load favorites, fetch films).
+2. **`FilmsCoordinator` / `FavoritesCoordinator` / `SearchCoordinator`** — each owns a `NavigationPath`, wraps its root screen, and builds `FilmDetailScreen`.
+3. **`FilmCoordinatorRoute`** — shared route enum (currently `.detail(Film)`).
+4. **Views** — no longer own `NavigationStack`; they receive a coordinator and focus on layout and state display.
+
 ## Project Structure
 
 ```
 GhibliSwiftUIApp/
 ├── App/
 │   ├── GhibliSwiftUIAppApp.swift      # ModelContainer + AppDependencies
-│   ├── ContentView.swift
+│   ├── ContentView.swift              # hosts AppCoordinator.rootView
+│   ├── Coordinator/
+│   │   ├── AppCoordinator.swift       # TabView + startup tasks
+│   │   ├── FilmsCoordinator.swift
+│   │   ├── FavoritesCoordinator.swift
+│   │   ├── SearchCoordinator.swift
+│   │   ├── SettingsCoordinator.swift
+│   │   ├── FilmCoordinatorRoute.swift
+│   │   ├── FilmNavigationCoordinating.swift
+│   │   └── CoordinatorNavigationStack.swift
 │   └── DI/
 │       ├── AppDependencies.swift      # live() / preview() wiring
 │       └── GhibliCacheContainer.swift
@@ -181,11 +226,18 @@ GhibliSwiftUIApp/
 ├── PreviewSupport/
 ├── Preview Assets/
 └── Assets.xcassets/
+
+GhibliSwiftUIAppTests/
+├── ViewModels/                        SearchFilms, Films, FilmDetail, Favorites
+├── Repositories/                      DefaultGhibli, OfflineFirst, DefaultFavorites
+├── Services/                          DefaultGhibliService
+├── Mocks/                             Use cases, services, repos, cache, storage, URLProtocol
+└── Support/                           TestFixtures, NetworkTestFixtures
 ```
 
 ## Features
 
-- TabView with Navigation Stacks
+- TabView with per-tab coordinators owning navigation stacks
 - **Movies** — offline-first film list (cache first, background refresh, network fallback)
 - **Detail** — film info, async image loading, cached characters with network refresh
 - **Favorites** — local persistence via UserDefaults
@@ -205,6 +257,20 @@ GhibliSwiftUIApp/
 
 ## Testing
 
-Unit tests cover `SearchFilmsViewModel` debounce, cancellation, and error handling. Tests inject a mock `GhibliService` through `DefaultGhibliRepository` → `DefaultSearchFilmsUseCase` (network path without SwiftData), matching how preview dependencies are wired.
+Unit tests live in `GhibliSwiftUIAppTests/` and are split **by layer**, each mocking only its direct dependency:
 
-To test offline-first behavior, use `OfflineFirstGhibliRepository` with an in-memory `ModelContainer` and a mock remote repository.
+| Layer | Test location | Mock boundary |
+|-------|---------------|---------------|
+| **ViewModels** | `ViewModels/` | Use case protocols (`MockSearchFilmsUseCase`, etc.) |
+| **Repositories** | `Repositories/` | Services, cache store, storage, remote repository |
+| **Services** | `Services/` | `URLSession` via `MockURLProtocol` |
+
+Shared fixtures live in `Support/TestFixtures.swift` and `Support/NetworkTestFixtures.swift`.
+
+**Run tests:** `Cmd+U` in Xcode, or:
+
+```bash
+xcodebuild test -scheme GhibliSwiftUIApp -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+`DefaultGhibliServiceTests` uses `@Suite(.serialized)` because the `URLProtocol` handler is shared static state.
