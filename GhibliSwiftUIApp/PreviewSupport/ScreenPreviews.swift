@@ -5,12 +5,7 @@
 import SwiftUI
 
 #Preview("Films") {
-    let dependencies = AppDependencies.preview()
-    FilmsScreen(
-        filmsViewModel: dependencies.filmsViewModel,
-        favoritesViewModel: dependencies.favoritesViewModel,
-        fetchFilmPeopleUseCase: dependencies.fetchFilmPeopleUseCase
-    )
+    FilmsCoordinator(dependencies: .preview()).start()
 }
 
 #Preview("Film Detail") {

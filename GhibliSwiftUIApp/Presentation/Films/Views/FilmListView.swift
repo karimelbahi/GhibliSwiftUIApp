@@ -4,34 +4,27 @@
 
 import SwiftUI
 
-public struct FilmListView: View {
+public struct FilmListView<Coordinator: FilmNavigationCoordinating>: View {
 
     let films: [Film]
-    let favoritesViewModel: FavoritesViewModel
-    let fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
+    let coordinator: Coordinator
 
     public init(
         films: [Film],
-        favoritesViewModel: FavoritesViewModel,
-        fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
+        coordinator: Coordinator
     ) {
         self.films = films
-        self.favoritesViewModel = favoritesViewModel
-        self.fetchFilmPeopleUseCase = fetchFilmPeopleUseCase
+        self.coordinator = coordinator
     }
 
     public var body: some View {
         List(films) { film in
-            NavigationLink(value: film) {
-                FilmRow(film: film, favoritesViewModel: favoritesViewModel)
+            NavigationLink(value: FilmCoordinatorRoute.detail(film)) {
+                FilmRow(
+                    film: film,
+                    favoritesViewModel: coordinator.favoritesViewModel
+                )
             }
-        }
-        .navigationDestination(for: Film.self) { film in
-            FilmDetailScreen(
-                film: film,
-                favoritesViewModel: favoritesViewModel,
-                fetchFilmPeopleUseCase: fetchFilmPeopleUseCase
-            )
         }
     }
 }

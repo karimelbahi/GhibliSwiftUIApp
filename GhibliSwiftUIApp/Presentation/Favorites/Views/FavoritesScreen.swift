@@ -6,23 +6,15 @@ import SwiftUI
 
 public struct FavoritesScreen: View {
 
-    let filmsViewModel: FilmsViewModel
-    let favoritesViewModel: FavoritesViewModel
-    let fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
+    let coordinator: FavoritesCoordinator
 
-    public init(
-        filmsViewModel: FilmsViewModel,
-        favoritesViewModel: FavoritesViewModel,
-        fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
-    ) {
-        self.filmsViewModel = filmsViewModel
-        self.favoritesViewModel = favoritesViewModel
-        self.fetchFilmPeopleUseCase = fetchFilmPeopleUseCase
+    public init(coordinator: FavoritesCoordinator) {
+        self.coordinator = coordinator
     }
 
     private var films: [Film] {
-        let favorites = favoritesViewModel.favoriteIDs
-        switch filmsViewModel.state {
+        let favorites = coordinator.favoritesViewModel.favoriteIDs
+        switch coordinator.filmsViewModel.state {
         case .loaded(let films):
             return films.filter { favorites.contains($0.id) }
         default: return []
@@ -30,19 +22,16 @@ public struct FavoritesScreen: View {
     }
 
     public var body: some View {
-        NavigationStack {
-            Group {
-                if films.isEmpty {
-                    ContentUnavailableView("No Favorites yet", systemImage: "heart")
-                } else {
-                    FilmListView(
-                        films: films,
-                        favoritesViewModel: favoritesViewModel,
-                        fetchFilmPeopleUseCase: fetchFilmPeopleUseCase
-                    )
-                }
+        Group {
+            if films.isEmpty {
+                ContentUnavailableView("No Favorites yet", systemImage: "heart")
+            } else {
+                FilmListView(
+                    films: films,
+                    coordinator: coordinator
+                )
             }
-            .navigationTitle("Favorites")
         }
+        .navigationTitle("Favorites")
     }
 }
