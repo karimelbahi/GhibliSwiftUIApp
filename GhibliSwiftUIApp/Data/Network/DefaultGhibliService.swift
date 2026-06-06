@@ -7,7 +7,11 @@ import Foundation
 nonisolated
 public struct DefaultGhibliService: GhibliService {
 
-    public init() {}
+    private let session: URLSession
+
+    public init(session: URLSession = .shared) {
+        self.session = session
+    }
 
     func fetch<T: Decodable>(from URLString: String, type: T.Type) async throws -> T {
         guard let url = URL(string: URLString) else {
@@ -15,7 +19,7 @@ public struct DefaultGhibliService: GhibliService {
         }
 
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
+            let (data, response) = try await session.data(from: url)
 
             guard let httpResponse = response as? HTTPURLResponse,
                   (200...299).contains(httpResponse.statusCode) else {
