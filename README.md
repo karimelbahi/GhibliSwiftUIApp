@@ -274,10 +274,11 @@ GhibliSwiftUIAppTests/
 <p float="left">
   <img src="images/ghibli_movie_list.jpeg" width="33%" />
   <img src="/images/ghibli_movie_detail.jpeg" width="33%" />
-  <img src="/images/ghibli_favorites.jpeg" width="33%" />
+  <img src="/images/ghibli_person_details.jpeg" width="33%" />
 </p>
 
 <p float="left">
+  <img src="/images/ghibli_favorites.jpeg" width="33%" />
   <img src="/images/ghibli_search.jpeg" width="33%" />
   <img src="/images/ghibli_settings.jpeg" width="33%">
 </p>
