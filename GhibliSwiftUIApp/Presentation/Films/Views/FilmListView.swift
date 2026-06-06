@@ -4,9 +4,11 @@
 
 import SwiftUI
 
+// Generic so the same list works in Movies, Favorites, and Search tabs.
 public struct FilmListView<Coordinator: FilmNavigationCoordinating>: View {
 
     let films: [Film]
+    // Coordinator handles navigation + favorites access.
     let coordinator: Coordinator
 
     public init(
@@ -19,6 +21,8 @@ public struct FilmListView<Coordinator: FilmNavigationCoordinating>: View {
 
     public var body: some View {
         List(films) { film in
+            // Push a coordinator route (not Film directly).
+            // CoordinatorNavigationStack converts route -> FilmDetailScreen.
             NavigationLink(value: FilmCoordinatorRoute.detail(film)) {
                 FilmRow(
                     film: film,

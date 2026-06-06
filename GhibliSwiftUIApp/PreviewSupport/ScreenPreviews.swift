@@ -5,6 +5,7 @@
 import SwiftUI
 
 #Preview("Films") {
+    // Preview the Movies tab through its coordinator (same path as runtime app).
     FilmsCoordinator(dependencies: .preview()).start()
 }
 

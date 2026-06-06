@@ -6,7 +6,9 @@ import SwiftUI
 
 public struct SearchScreen: View {
 
+    // Local UI state for search field text.
     @State private var text: String = ""
+    // Search tab coordinator provides search VM + navigation.
     let coordinator: SearchCoordinator
 
     public init(coordinator: SearchCoordinator) {
@@ -32,6 +34,7 @@ public struct SearchScreen: View {
         }
         .navigationTitle("Search Ghibli Movies")
         .searchable(text: $text)
+        // Debounced fetch is still view-model responsibility, not coordinator.
         .task(id: text) {
             await coordinator.searchViewModel.fetch(for: text)
         }

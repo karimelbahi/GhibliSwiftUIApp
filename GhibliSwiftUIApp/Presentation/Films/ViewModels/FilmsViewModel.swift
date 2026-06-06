@@ -5,6 +5,8 @@
 import Foundation
 import Observation
 
+// @MainActor: view model updates UI state, so it must run on main thread.
+// @Observable: when `state` changes, SwiftUI screens refresh automatically.
 @MainActor
 @Observable
 public class FilmsViewModel {
