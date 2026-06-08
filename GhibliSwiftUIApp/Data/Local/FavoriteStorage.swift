@@ -4,7 +4,7 @@
 
 import Foundation
 
-public protocol FavoriteStorage {
-    func load() -> Set<String>
-    func save(favoriteIDs: Set<String>)
+public protocol FavoriteStorage: Sendable {
+    nonisolated func load() -> Set<String>
+    nonisolated func save(favoriteIDs: Set<String>)
 }

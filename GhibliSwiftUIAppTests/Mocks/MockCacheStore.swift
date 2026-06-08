@@ -6,7 +6,8 @@
 import Foundation
 @testable import GhibliSwiftUIApp
 
-actor MockGhibliCacheStore: GhibliCacheStore {
+@MainActor
+final class MockGhibliCacheStore: GhibliCacheStore {
 
     var films: [Film] = []
     var peopleByFilmId: [String: [Person]] = [:]

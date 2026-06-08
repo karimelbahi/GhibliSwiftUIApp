@@ -1,0 +1,62 @@
+//
+//  FilmsFeature.swift
+//
+
+import ComposableArchitecture
+import Foundation
+
+struct FilmsFeature: Reducer {
+
+    @ObservableState
+    struct State: Equatable {
+        var filmsState: LoadingState<[Film]> = .idle
+        var favoriteIDs: Set<String> = []
+    }
+
+    enum Action: Equatable {
+        case onAppear
+        case fetchFilmsResponse(Result<[Film], DomainError>)
+        case favoriteButtonTapped(String)
+    }
+
+    let ghibliClient: GhibliClient
+
+    init(ghibliClient: GhibliClient) {
+        self.ghibliClient = ghibliClient
+    }
+
+    var body: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
+            case .onAppear:
+                guard !state.filmsState.isLoading || state.filmsState.error != nil else {
+                    return .none
+                }
+                if case .idle = state.filmsState {
+                    state.filmsState = .loading
+                }
+                return .run { [ghibliClient] send in
+                    do {
+                        let films = try await ghibliClient.fetchFilms()
+                        await send(.fetchFilmsResponse(.success(films)))
+                    } catch let error as DomainError {
+                        await send(.fetchFilmsResponse(.failure(error)))
+                    } catch {
+                        await send(.fetchFilmsResponse(.failure(.unknown)))
+                    }
+                }
+
+            case let .fetchFilmsResponse(.success(films)):
+                state.filmsState = .loaded(films)
+                return .none
+
+            case let .fetchFilmsResponse(.failure(error)):
+                state.filmsState = .error(error.userMessage)
+                return .none
+
+            case .favoriteButtonTapped:
+                return .none
+            }
+        }
+    }
+}

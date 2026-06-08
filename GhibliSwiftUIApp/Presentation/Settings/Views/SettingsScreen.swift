@@ -2,29 +2,22 @@
 //  SettingsScreen.swift
 //
 
+import ComposableArchitecture
 import SwiftUI
 
-public struct SettingsScreen: View {
+struct SettingsScreen: View {
 
-    @AppStorage(UserDefaultsKeys.appearanceTheme)
-    private var appearanceTheme: AppearanceTheme = .system
+    @Bindable var store: StoreOf<SettingsFeature>
 
-    @AppStorage(UserDefaultsKeys.username)
-    private var username: String = ""
+    init(store: StoreOf<SettingsFeature>) {
+        self.store = store
+    }
 
-    @AppStorage(UserDefaultsKeys.itemsPerPage)
-    private var itemsPerPage: Int = 20
-
-    @AppStorage(UserDefaultsKeys.notificationsEnabled)
-    private var notificationsEnabled: Bool = true
-
-    public init() {}
-
-    public var body: some View {
+    var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Appearance", selection: $appearanceTheme) {
+                    Picker("Appearance", selection: appearanceThemeBinding) {
                         ForEach(AppearanceTheme.allCases) {
                             Text($0.rawValue.capitalized)
                         }
@@ -34,37 +27,66 @@ public struct SettingsScreen: View {
                 } header: {
                     Text("Appearance")
                 } footer: {
-                    Text("Overrides the system appearance to always use Light.")
+                    Text("Choose light, dark, or follow the system appearance.")
                 }
 
                 Section("Account") {
-                    TextField("Username", text: $username)
+                    TextField("Username", text: usernameBinding)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
 
                 Section("Preferences") {
-                    Stepper("Items per page: \(itemsPerPage)", value: $itemsPerPage, in: 10...100, step: 5)
-                    Toggle("Enable notifications", isOn: $notificationsEnabled)
+                    Stepper(
+                        "Items per page: \(store.itemsPerPage)",
+                        value: itemsPerPageBinding,
+                        in: 10...100,
+                        step: 5
+                    )
+                    Toggle("Enable notifications", isOn: notificationsEnabledBinding)
                 }
 
                 Section {
                     Button(role: .destructive) {
-                        resetDefaults()
+                        store.send(.resetDefaults)
                     } label: {
                         Text("Reset to Defaults")
                     }
                 }
             }
             .navigationTitle("Settings")
+            .task {
+                store.send(.onAppear)
+            }
         }
     }
 
-    private func resetDefaults() {
-        appearanceTheme = .system
-        username = ""
-        itemsPerPage = 20
-        notificationsEnabled = true
+    private var appearanceThemeBinding: Binding<AppearanceTheme> {
+        Binding(
+            get: { store.appearanceTheme },
+            set: { store.send(.appearanceThemeChanged($0)) }
+        )
+    }
+
+    private var usernameBinding: Binding<String> {
+        Binding(
+            get: { store.username },
+            set: { store.send(.usernameChanged($0)) }
+        )
+    }
+
+    private var itemsPerPageBinding: Binding<Int> {
+        Binding(
+            get: { store.itemsPerPage },
+            set: { store.send(.itemsPerPageChanged($0)) }
+        )
+    }
+
+    private var notificationsEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { store.notificationsEnabled },
+            set: { store.send(.notificationsEnabledChanged($0)) }
+        )
     }
 }
 

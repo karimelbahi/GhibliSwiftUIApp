@@ -2,27 +2,50 @@
 //  ScreenPreviews.swift
 //
 
+import ComposableArchitecture
 import SwiftUI
 
 #Preview("Films") {
-    // Preview the Movies tab through its coordinator (same path as runtime app).
-    FilmsCoordinator(dependencies: .preview()).start()
+    let (ghibliClient, _) = LiveDependencies.makePreview()
+    FilmsScreen(
+        store: Store(
+            initialState: FilmsFeature.State(
+                filmsState: .loaded([PreviewData.totoro, PreviewData.castleInTheSky])
+            )
+        ) {
+            FilmsFeature(ghibliClient: ghibliClient)
+        },
+        ghibliClient: ghibliClient
+    )
 }
 
 #Preview("Film Detail") {
-    let dependencies = AppDependencies.preview()
+    let (ghibliClient, _) = LiveDependencies.makePreview()
     NavigationStack {
         FilmDetailScreen(
-            film: PreviewData.totoro,
-            favoritesViewModel: dependencies.favoritesViewModel,
-            viewModel: dependencies.makeFilmDetailViewModel(preloaded: true)
+            store: Store(
+                initialState: FilmDetailFeature.State(
+                    film: PreviewData.totoro,
+                    peopleState: .loaded([PreviewData.samplePerson])
+                )
+            ) {
+                FilmDetailFeature(ghibliClient: ghibliClient)
+            },
+            isFavorite: true,
+            onFavoriteTapped: {}
         )
     }
 }
 
 #Preview("Person Detail") {
     NavigationStack {
-        PersonDetailScreen(person: PreviewData.samplePerson)
+        PersonDetailScreen(
+            store: Store(
+                initialState: PersonDetailFeature.State(person: PreviewData.samplePerson)
+            ) {
+                PersonDetailFeature()
+            }
+        )
     }
 }
 

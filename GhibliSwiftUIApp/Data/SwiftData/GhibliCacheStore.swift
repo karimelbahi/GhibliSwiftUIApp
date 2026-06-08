@@ -4,7 +4,8 @@
 
 import Foundation
 
-public protocol GhibliCacheStore: Sendable {
+@MainActor
+public protocol GhibliCacheStore {
     func loadFilms() async -> [Film]
     func saveFilms(_ films: [Film]) async
 
@@ -13,6 +14,7 @@ public protocol GhibliCacheStore: Sendable {
 }
 
 /// Used in tests and SwiftUI previews — always misses cache.
+@MainActor
 public struct NullGhibliCacheStore: GhibliCacheStore {
     public init() {}
 

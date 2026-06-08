@@ -13,11 +13,11 @@ public struct DefaultFavoritesRepository: FavoritesRepository {
         self.storage = storage
     }
 
-    public func load() -> Set<String> {
+    public nonisolated func load() -> Set<String> {
         storage.load()
     }
 
-    public func save(favoriteIDs: Set<String>) {
+    public nonisolated func save(favoriteIDs: Set<String>) {
         storage.save(favoriteIDs: favoriteIDs)
     }
 }

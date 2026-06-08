@@ -1,35 +1,35 @@
 //
 //  PersonDetailScreen.swift
-//  STEP 2: Create the new screen (UI only, no navigation logic here).
 //
 
+import ComposableArchitecture
 import SwiftUI
 
-public struct PersonDetailScreen: View {
+struct PersonDetailScreen: View {
 
-    let person: Person
+    let store: StoreOf<PersonDetailFeature>
 
-    public init(person: Person) {
-        self.person = person
+    init(store: StoreOf<PersonDetailFeature>) {
+        self.store = store
     }
 
-    public var body: some View {
+    var body: some View {
         List {
             Section("Profile") {
-                LabeledContent("Name", value: person.name)
-                LabeledContent("Gender", value: person.gender)
-                LabeledContent("Age", value: person.age)
-                LabeledContent("Species", value: person.species.isEmpty ? "Unknown" : person.species)
+                LabeledContent("Name", value: store.person.name)
+                LabeledContent("Gender", value: store.person.gender)
+                LabeledContent("Age", value: store.person.age)
+                LabeledContent("Species", value: store.person.species.isEmpty ? "Unknown" : store.person.species)
             }
 
             Section("Appearance") {
-                LabeledContent("Eye Color", value: person.eyeColor)
-                LabeledContent("Hair Color", value: person.hairColor)
+                LabeledContent("Eye Color", value: store.person.eyeColor)
+                LabeledContent("Hair Color", value: store.person.hairColor)
             }
 
-            if !person.films.isEmpty {
+            if !store.person.films.isEmpty {
                 Section("Film IDs") {
-                    ForEach(person.films, id: \.self) { filmID in
+                    ForEach(store.person.films, id: \.self) { filmID in
                         Text(filmID)
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -37,7 +37,7 @@ public struct PersonDetailScreen: View {
                 }
             }
         }
-        .navigationTitle(person.name)
+        .navigationTitle(store.person.name)
         .navigationBarTitleDisplayMode(.inline)
     }
 }

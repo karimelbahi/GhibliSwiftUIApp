@@ -2,25 +2,50 @@
 //  ContentView.swift
 //
 
+import ComposableArchitecture
 import SwiftUI
 
 struct ContentView: View {
 
-    // @State keeps AppCoordinator alive across view re-renders.
-    // AppCoordinator is @Observable, so changes inside it can refresh this view tree.
-    @State private var coordinator: AppCoordinator
+    let store: StoreOf<AppFeature>
+    let ghibliClient: GhibliClient
 
-    // Create AppCoordinator from dependency container.
-    init(dependencies: AppDependencies) {
-        _coordinator = State(initialValue: AppCoordinator(dependencies: dependencies))
+    init(
+        cacheContainer: GhibliCacheContainer,
+        useMockService: Bool = false
+    ) {
+        let (ghibliClient, favoritesClient) = LiveDependencies.make(
+            cacheContainer: cacheContainer,
+            useMockService: useMockService
+        )
+        self.ghibliClient = ghibliClient
+        store = Store(initialState: AppFeature.State()) {
+            AppFeature(
+                ghibliClient: ghibliClient,
+                favoritesClient: favoritesClient
+            )
+        }
+    }
+
+    init(store: StoreOf<AppFeature>, ghibliClient: GhibliClient) {
+        self.store = store
+        self.ghibliClient = ghibliClient
     }
 
     var body: some View {
-        // ContentView no longer builds tabs directly; coordinator does that.
-        coordinator.rootView
+        AppView(store: store, ghibliClient: ghibliClient)
     }
 }
 
 #Preview {
-    ContentView(dependencies: .preview())
+    let (ghibliClient, favoritesClient) = LiveDependencies.makePreview()
+    ContentView(
+        store: Store(initialState: AppFeature.State()) {
+            AppFeature(
+                ghibliClient: ghibliClient,
+                favoritesClient: favoritesClient
+            )
+        },
+        ghibliClient: ghibliClient
+    )
 }

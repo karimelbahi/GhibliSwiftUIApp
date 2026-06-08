@@ -1,6 +1,5 @@
 //
 //  GhibliSwiftUIAppApp.swift
-//  GhibliSwiftUIApp
 //
 
 import SwiftData
@@ -10,17 +9,14 @@ import SwiftUI
 struct GhibliSwiftUIAppApp: App {
 
     private let cacheContainer: GhibliCacheContainer
-    private let dependencies: AppDependencies
 
     init() {
-        let cacheContainer = try! GhibliCacheContainer()
-        self.cacheContainer = cacheContainer
-        self.dependencies = AppDependencies.live(cacheContainer: cacheContainer)
+        cacheContainer = try! GhibliCacheContainer()
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView(dependencies: dependencies)
+            ContentView(cacheContainer: cacheContainer)
         }
         .modelContainer(cacheContainer.modelContainer)
     }

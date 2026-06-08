@@ -1,16 +1,16 @@
 # GhibliSwiftUIApp
 
-A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app/), built with **Clean Architecture + MVVM**, manual dependency injection, and **offline-first** caching via **SwiftData**.
+A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app/), built with **The Composable Architecture (TCA)**, constructor-injected clients, and **offline-first** caching via **SwiftData**.
 
 ## Tech Stack
 
 - iOS 17+
-- SwiftUI with `@Observable` (Observation framework)
+- SwiftUI with TCA `@ObservableState` and `@Bindable` stores
+- [swift-composable-architecture](https://github.com/pointfreeco/swift-composable-architecture) 1.25+
 - URLSession with async/await
 - **SwiftData** for offline-first local caching (films catalog + film people)
-- Clean Architecture (Domain, Data, Presentation, App) + MVVM
-- **Coordinator pattern** for tab and navigation flow
-- Swift Testing with mocks and dependency injection
+- Clean Architecture (Domain, Data, Features, Presentation, App)
+- Swift Testing with `TestStore` and mock clients
 
 ## API
 
@@ -20,285 +20,173 @@ A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app
 
 ## Architecture
 
-The app is organized into four **logical layers** inside the `GhibliSwiftUIApp` target. **ViewModels** talk only to **use case protocols**. **Use case implementations** talk only to **repository protocols**. **Repository implementations** coordinate **network services**, **SwiftData cache**, and **local storage** (UserDefaults for favorites).
+The app uses **TCA** for state management and side effects. **Clients** replace the former use-case layer. **Repositories** and **services** in the Data layer are unchanged.
 
 ```mermaid
 flowchart TB
     subgraph Presentation
-        Views
-        ViewModels
+        Views["SwiftUI Views"]
         LoadingState
     end
 
+    subgraph Features
+        AppFeature
+        FilmsFeature
+        FavoritesFeature
+        SearchFeature
+        SettingsFeature
+        FilmDetailFeature
+        PersonDetailFeature
+    end
+
+    subgraph Clients
+        GhibliClient
+        FavoritesClient
+        SettingsStorage
+    end
+
     subgraph Domain
-        Entities["Entities (Film, Person)"]
-        UseCaseProtocols
-        UseCaseImpls
+        Entities["Film, Person"]
         RepoProtocols
         DomainError
     end
 
     subgraph Data
         OfflineRepo["OfflineFirstGhibliRepository"]
-        RemoteRepo["DefaultGhibliRepository"]
-        FavoritesRepo["DefaultFavoritesRepository"]
-        CacheStore["GhibliCacheStore / SwiftData"]
-        SwiftDataModels["CachedFilm, CachedPerson, CachedFilmPeople"]
+        FavoritesRepo
+        CacheStore["SwiftData Cache"]
         Services["GhibliService"]
-        DTOs
-        Mappers
-        FavoriteStorage["FavoriteStorage (UserDefaults)"]
-        APIError
     end
 
     subgraph App
         AppEntry["GhibliSwiftUIAppApp"]
-        CacheContainer["GhibliCacheContainer"]
-        AppDependencies
-        AppCoordinator
-        TabCoordinators["Films / Favorites / Search Coordinators"]
+        ContentView
+        LiveDependencies
+        GhibliCacheContainer
     end
 
-    Views --> ViewModels
-    ViewModels --> UseCaseProtocols
-    UseCaseImpls --> RepoProtocols
-    RepoProtocols -.-> OfflineRepo
-    RepoProtocols -.-> FavoritesRepo
+    Views --> AppFeature
+    AppFeature --> FilmsFeature & FavoritesFeature & SearchFeature & SettingsFeature
+    FilmsFeature & FavoritesFeature & SearchFeature & FilmDetailFeature --> GhibliClient
+    AppFeature --> FavoritesClient
+    SettingsFeature --> SettingsStorage
+    GhibliClient --> OfflineRepo
+    FavoritesClient --> FavoritesRepo
     OfflineRepo --> CacheStore
-    OfflineRepo --> RemoteRepo
-    CacheStore --> SwiftDataModels
-    RemoteRepo --> Services
-    FavoritesRepo --> FavoriteStorage
-    Services --> DTOs
-    DTOs --> Mappers
-    Mappers --> Entities
-    AppEntry --> CacheContainer
-    AppEntry --> AppCoordinator
-    AppCoordinator --> AppDependencies
-    AppCoordinator --> TabCoordinators
-    TabCoordinators --> Views
-    AppDependencies --> ViewModels
-    AppDependencies --> UseCaseImpls
-    AppDependencies --> OfflineRepo
-    AppDependencies --> FavoritesRepo
-    AppDependencies --> Services
-    CacheContainer --> CacheStore
+    OfflineRepo --> Services
+    AppEntry --> ContentView --> LiveDependencies
+    LiveDependencies --> GhibliClient & FavoritesClient
 ```
 
 ### Layer responsibilities
 
 | Layer | Location | Responsibility |
 |-------|----------|----------------|
-| **App** | `App/` | Composition root (`AppDependencies`, `GhibliCacheContainer`), coordinators, `ContentView`, app entry, `.modelContainer` |
-| **Presentation** | `Presentation/` | SwiftUI views, `@Observable` view models, `LoadingState` |
-| **Domain** | `Domain/` | Pure Swift entities, use case + repository **protocols**, default use cases, `DomainError` |
-| **Data** | `Data/` | Repository implementations, SwiftData cache, network/local services, DTOs, mappers, `APIError` |
+| **App** | `App/` | Entry point, `ContentView`, `GhibliCacheContainer`, `.modelContainer` |
+| **Features** | `Features/` | TCA reducers (`AppFeature`, tab features, detail features) |
+| **Clients** | `Clients/` | `GhibliClient`, `FavoritesClient`, `LiveDependencies`, `SettingsStorage` |
+| **Presentation** | `Presentation/` | SwiftUI views bound to `StoreOf<Feature>` |
+| **Domain** | `Domain/` | Entities, repository protocols, `DomainError` |
+| **Data** | `Data/` | Repository implementations, SwiftData cache, network/local services |
 
-**Dependency rule:** Presentation and Data depend on Domain. Domain does not import Presentation or Data.
+**Dependency rule:** Features and Data depend on Domain. Domain does not import Presentation or TCA.
 
-### Composition root (`AppDependencies`)
+### Composition root
 
-`AppDependencies` is the **only** place that wires concrete types:
+`LiveDependencies.make(cacheContainer:)` wires repositories into clients:
 
-| Production (`live`) | Preview (`preview`) |
-|---------------------|---------------------|
-| `GhibliCacheContainer` + SwiftData | `NullGhibliCacheStore` (no disk cache) |
-| `OfflineFirstGhibliRepository` → `DefaultGhibliRepository` + cache | Same stack with `MockGhibliService` |
+| Production | Preview |
+|------------|---------|
+| `GhibliCacheContainer` + SwiftData | `NullGhibliCacheStore` |
+| `OfflineFirstGhibliRepository` | Same stack with `MockGhibliService` |
 | `DefaultFavoriteStorage` | `MockFavoriteStorage` |
+
+`ContentView` creates the root `Store<AppFeature>` and passes `ghibliClient` to `AppView` for navigation destinations.
+
+### Navigation
+
+Each tab owns a `NavigationStack`. Shared routes are defined in `FilmNavigationRoute`:
+
+- `.filmDetail(Film)` — pushed from film lists via `FilmListView`
+- `.personDetail(Person)` — pushed from `FilmDetailScreen` character links
+
+`filmNavigationDestinations(ghibliClient:favoriteIDs:onFavoriteTapped:)` maps routes to detail screens. Favorite state is read from the parent tab store so the heart icon stays in sync.
 
 ### Offline-first data flow
 
-```mermaid
-sequenceDiagram
-    participant VM as ViewModel
-    participant UC as Use Case
-    participant OF as OfflineFirstGhibliRepository
-    participant Cache as SwiftData Cache
-    participant Remote as DefaultGhibliRepository
-    participant API as Ghibli API
-
-    VM->>UC: execute()
-    UC->>OF: fetchFilms() / search / fetchPeople
-    OF->>Cache: load cached data
-    alt cache hit
-        Cache-->>OF: domain models
-        OF-->>UC: return cache immediately
-        OF->>Remote: background refresh
-        Remote->>API: network request
-        API-->>Remote: DTOs
-        Remote-->>OF: domain models
-        OF->>Cache: save updated cache
-    else cache miss
-        OF->>Remote: fetch from network
-        Remote->>API: network request
-        API-->>Remote: DTOs
-        Remote-->>OF: domain models
-        OF->>Cache: save cache
-        OF-->>UC: return fresh data
-    end
-    UC-->>VM: update UI state
-```
-
-**Policies:**
-
 1. **Read** — return SwiftData cache when available (stale-while-revalidate).
 2. **Refresh** — when cache exists, update from the API in a background `Task`.
-3. **Fallback** — on network errors, return cache when possible instead of failing the screen.
-4. **Search offline** — filter cached films locally when the catalog is already stored.
+3. **Fallback** — on network errors, return cache when possible.
+4. **Search offline** — filter cached films locally when the catalog is stored.
 
-Favorites use **UserDefaults** via `FavoriteStorage` (not SwiftData).
-
-**Character loading note:** some films (e.g. *Arrietty*) return placeholder people URLs like `.../people/` instead of `.../people/{id}`. `DefaultGhibliRepository` filters those invalid collection URLs, skips per-person decode failures, and returns an empty list instead of surfacing a screen error.
-
-### Navigation (Coordinator)
-
-Navigation is handled by **coordinators** in `App/Coordinator/`. Views render UI; coordinators own `NavigationStack`, `NavigationPath`, and push destinations.
-
-```mermaid
-flowchart TB
-    AppCoordinator --> FilmsCoordinator
-    AppCoordinator --> FavoritesCoordinator
-    AppCoordinator --> SearchCoordinator
-    AppCoordinator --> SettingsCoordinator
-
-    FilmsCoordinator --> FilmsScreen
-    FavoritesCoordinator --> FavoritesScreen
-    SearchCoordinator --> SearchScreen
-    SettingsCoordinator --> SettingsScreen
-
-    FilmsCoordinator --> FilmDetailScreen
-    FavoritesCoordinator --> FilmDetailScreen
-    SearchCoordinator --> FilmDetailScreen
-
-    FilmDetailScreen --> PersonDetailScreen
-```
-
-**Flows:**
-
-1. **Film list → detail** — user taps a film in `FilmListView` → `FilmCoordinatorRoute.detail(film)` is pushed → `CoordinatorNavigationStack` presents `FilmDetailScreen`.
-2. **Film detail → person detail** — user taps a character → `FilmCoordinatorRoute.personDetail(person)` is pushed → `CoordinatorNavigationStack` presents `PersonDetailScreen`.
-
-**Responsibilities:**
-
-1. **`AppCoordinator`** — owns the `TabView`, creates child coordinators, runs startup tasks (load favorites, fetch films).
-2. **`FilmsCoordinator` / `FavoritesCoordinator` / `SearchCoordinator`** — each owns a `NavigationPath`, wraps its root screen, and builds pushed destinations.
-3. **`FilmCoordinatorRoute`** — shared route enum (`.detail(Film)`, `.personDetail(Person)`).
-4. **`CoordinatorNavigationStack`** — binds `NavigationStack(path:)` and maps each route case to a screen.
-5. **Views** — no longer own `NavigationStack`; they push routes and focus on layout/state.
-
-#### Adding a new screen
-
-| Step | Action | Example |
-|------|--------|---------|
-| 1 | Add a route case | `case personDetail(Person)` in `FilmCoordinatorRoute` |
-| 2 | Create the view (UI only) | `PersonDetailScreen.swift` |
-| 3a | Map route → screen | `case .personDetail(let person):` in `CoordinatorNavigationStack` |
-| 3b | Add screen factory (required) | `personDetailScreen(for:)` in `FilmNavigationCoordinating` |
-| 3c | Add `show*` helper (optional) | `showPersonDetail(_:)` for programmatic navigation |
-| 4 | Trigger navigation | `NavigationLink(value:)` or `showPersonDetail(_:)` |
-
-**Why two coordinator methods per screen?**
-
-- `showPersonDetail(_:)` — **navigates** by appending a route to `path` (for buttons/tasks).
-- `personDetailScreen(for:)` — **builds** the destination view when the route is active (used by `navigationDestination`).
-
-If you only use `NavigationLink(value:)`, the `show*` helper is optional.
+Favorites use **UserDefaults** via `FavoritesClient`. Settings use **UserDefaults** via `SettingsStorage`.
 
 ## Project Structure
 
 ```
 GhibliSwiftUIApp/
 ├── App/
-│   ├── GhibliSwiftUIAppApp.swift      # ModelContainer + AppDependencies
-│   ├── ContentView.swift              # hosts AppCoordinator.rootView
-│   ├── Coordinator/
-│   │   ├── AppCoordinator.swift       # TabView + startup tasks
-│   │   ├── FilmsCoordinator.swift
-│   │   ├── FavoritesCoordinator.swift
-│   │   ├── SearchCoordinator.swift
-│   │   ├── SettingsCoordinator.swift
-│   │   ├── FilmCoordinatorRoute.swift
-│   │   ├── FilmNavigationCoordinating.swift
-│   │   └── CoordinatorNavigationStack.swift
+│   ├── GhibliSwiftUIAppApp.swift
+│   ├── ContentView.swift
 │   └── DI/
-│       ├── AppDependencies.swift      # live() / preview() wiring
 │       └── GhibliCacheContainer.swift
+├── Clients/
+│   ├── GhibliClient.swift
+│   ├── FavoritesClient.swift
+│   ├── LiveDependencies.swift
+│   └── SettingsStorage.swift
+├── Features/
+│   ├── App/                    AppFeature, AppView
+│   ├── Films/                  FilmsFeature
+│   ├── Favorites/              FavoritesFeature
+│   ├── Search/                 SearchFeature
+│   ├── Settings/               SettingsFeature
+│   ├── FilmDetail/             FilmDetailFeature
+│   ├── PersonDetail/           PersonDetailFeature
+│   └── Shared/                 FilmNavigationDestination
 ├── Domain/
-│   ├── Entities/                      Film, Person
-│   ├── Errors/                        DomainError
-│   ├── Repositories/                  GhibliRepository, FavoritesRepository (protocols)
-│   └── UseCases/                      FetchFilms, SearchFilms, FetchFilmPeople, ManageFavorites
-├── Data/
-│   ├── DTOs/                          FilmDTO, PersonDTO
-│   ├── Mappers/                       FilmMapper, PersonMapper, CacheEntityMapper, APIError+DomainError
-│   ├── Network/                       GhibliService, Default/MockGhibliService
-│   ├── Local/                         FavoriteStorage, Default/MockFavoriteStorage
-│   ├── SwiftData/
-│   │   ├── Models/                    CachedFilm, CachedPerson, CachedFilmPeople
-│   │   ├── GhibliCacheStore.swift     # protocol + NullGhibliCacheStore
-│   │   ├── GhibliSwiftDataStack.swift
-│   │   ├── SwiftDataGhibliCacheStore.swift
-│   │   └── SwiftDataGhibliCacheStoreBridge.swift
+│   ├── Entities/
+│   ├── Errors/
 │   └── Repositories/
-│       ├── DefaultGhibliRepository.swift      # network-only
-│       ├── OfflineFirstGhibliRepository.swift # cache + network
-│       └── DefaultFavoritesRepository.swift
+├── Data/
+│   ├── DTOs/, Mappers/, Network/, Local/, SwiftData/, Repositories/
 ├── Presentation/
-│   ├── Common/                        LoadingState
-│   ├── Films/                         ViewModels + Views (Films, FilmDetail, PersonDetail, FilmList)
-│   ├── Search/
-│   ├── Favorites/
-│   └── Settings/
+│   ├── Films/, Favorites/, Search/, Settings/, Common/
 ├── PreviewSupport/
-├── Preview Assets/
 └── Assets.xcassets/
 
 GhibliSwiftUIAppTests/
-├── ViewModels/                        SearchFilms, Films, FilmDetail, Favorites
-├── Repositories/                      DefaultGhibli, OfflineFirst, DefaultFavorites
-├── Services/                          DefaultGhibliService
-├── Mocks/                             Use cases, services, repos, cache, storage, URLProtocol
-└── Support/                           TestFixtures, NetworkTestFixtures
+├── Features/                   TCA reducer tests (TestStore)
+├── Repositories/
+├── Services/
+├── Mocks/                        MockClients, MockRepositories, etc.
+└── Support/                      TestFixtures
 ```
 
 ## Features
 
-- TabView with per-tab coordinators owning navigation stacks
-- **Movies** — offline-first film list (cache first, background refresh, network fallback)
-- **Detail** — film info, async image loading, cached characters with network refresh; tap a character to open person detail
-- **Person detail** — character profile screen pushed via coordinator routes
-- **Favorites** — local persistence via UserDefaults
-- **Search** — client-side filter with 500ms debounce (works offline when films are cached)
-- **Settings** — appearance theme and preferences stored in UserDefaults
-
-<p float="left">
-  <img src="images/ghibli_movie_list.jpeg" width="33%" />
-  <img src="/images/ghibli_movie_detail.jpeg" width="33%" />
-  <img src="/images/ghibli_person_details.jpeg" width="33%" />
-</p>
-
-<p float="left">
-  <img src="/images/ghibli_favorites.jpeg" width="33%" />
-  <img src="/images/ghibli_search.jpeg" width="33%" />
-  <img src="/images/ghibli_settings.jpeg" width="33%">
-</p>
+- TabView with TCA-scoped child stores per tab
+- **Movies** — offline-first film list with paginated display (`itemsPerPage` from Settings)
+- **Detail** — film info, characters, live favorite toggle
+- **Person detail** — character profile via `FilmNavigationRoute.personDetail`
+- **Favorites** — filtered list with loading/error states
+- **Search** — debounced search (500ms) with offline cache support
+- **Settings** — appearance theme, username, items per page, notifications (TCA + UserDefaults)
 
 ## Testing
 
-Unit tests live in `GhibliSwiftUIAppTests/` and are split **by layer**, each mocking only its direct dependency:
+Unit tests use **Swift Testing** and TCA **`TestStore`**:
 
-| Layer | Test location | Mock boundary |
-|-------|---------------|---------------|
-| **ViewModels** | `ViewModels/` | Use case protocols (`MockSearchFilmsUseCase`, etc.) |
-| **Repositories** | `Repositories/` | Services, cache store, storage, remote repository |
+| Layer | Location | Approach |
+|-------|----------|----------|
+| **Features** | `Features/` | `TestStore` + `MockClients` constructor injection |
+| **Repositories** | `Repositories/` | Mock services, cache, storage |
 | **Services** | `Services/` | `URLSession` via `MockURLProtocol` |
 
-Shared fixtures live in `Support/TestFixtures.swift` and `Support/NetworkTestFixtures.swift`.
-
-**Run tests:** `Cmd+U` in Xcode, or:
-
 ```bash
-xcodebuild test -scheme GhibliSwiftUIApp -destination 'platform=iOS Simulator,name=iPhone 17'
+xcodebuild test -scheme GhibliSwiftUIApp \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -skipMacroValidation -skipPackagePluginValidation
 ```
 
 `DefaultGhibliServiceTests` uses `@Suite(.serialized)` because the `URLProtocol` handler is shared static state.

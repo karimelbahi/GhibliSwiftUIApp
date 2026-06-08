@@ -2,55 +2,43 @@
 //  FilmDetailScreen.swift
 //
 
+import ComposableArchitecture
 import SwiftUI
 
-public struct FilmDetailScreen: View {
+struct FilmDetailScreen: View {
 
-    let film: Film
-    let favoritesViewModel: FavoritesViewModel
+    @Bindable var store: StoreOf<FilmDetailFeature>
+    let isFavorite: Bool
+    let onFavoriteTapped: () -> Void
 
-    @State private var viewModel: FilmDetailViewModel
-
-    public init(
-        film: Film,
-        favoritesViewModel: FavoritesViewModel,
-        fetchFilmPeopleUseCase: FetchFilmPeopleUseCase
+    init(
+        store: StoreOf<FilmDetailFeature>,
+        isFavorite: Bool,
+        onFavoriteTapped: @escaping () -> Void
     ) {
-        self.film = film
-        self.favoritesViewModel = favoritesViewModel
-        _viewModel = State(
-            initialValue: FilmDetailViewModel(fetchFilmPeopleUseCase: fetchFilmPeopleUseCase)
-        )
+        self.store = store
+        self.isFavorite = isFavorite
+        self.onFavoriteTapped = onFavoriteTapped
     }
 
-    public init(
-        film: Film,
-        favoritesViewModel: FavoritesViewModel,
-        viewModel: FilmDetailViewModel
-    ) {
-        self.film = film
-        self.favoritesViewModel = favoritesViewModel
-        _viewModel = State(initialValue: viewModel)
-    }
-
-    public var body: some View {
+    var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 7) {
-                FilmImageView(urlPath: film.bannerImage)
+                FilmImageView(urlPath: store.film.bannerImage)
                     .frame(height: 300)
                     .containerRelativeFrame(.horizontal)
 
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(film.title)
+                    Text(store.film.title)
                         .font(.title)
                         .fontWeight(.bold)
 
                     Grid(alignment: .leading) {
-                        InfoRow(label: "Director", value: film.director)
-                        InfoRow(label: "Producer", value: film.producer)
-                        InfoRow(label: "Release Date", value: film.releaseYear)
-                        InfoRow(label: "Running Time", value: "\(film.duration) minutes")
-                        InfoRow(label: "Score", value: "\(film.score)/100")
+                        InfoRow(label: "Director", value: store.film.director)
+                        InfoRow(label: "Producer", value: store.film.producer)
+                        InfoRow(label: "Release Date", value: store.film.releaseYear)
+                        InfoRow(label: "Running Time", value: "\(store.film.duration) minutes")
+                        InfoRow(label: "Score", value: "\(store.film.score)/100")
                     }
                     .padding(.vertical, 8)
 
@@ -59,20 +47,21 @@ public struct FilmDetailScreen: View {
                     Text("Description")
                         .font(.headline)
 
-                    Text(film.description)
+                    Text(store.film.description)
 
                     Divider()
 
-                    CharacterSectionView(viewModel: viewModel)
+                    CharacterSectionView(store: store)
                 }
                 .padding()
             }
         }
         .toolbar {
-            FavoriteButton(filmID: film.id, favoritesViewModel: favoritesViewModel)
+            FavoriteButton(isFavorite: isFavorite, action: onFavoriteTapped)
         }
-        .task(id: film) {
-            await viewModel.fetch(for: film)
+        .personNavigationDestination()
+        .task(id: store.film.id) {
+            store.send(.onAppear)
         }
     }
 }
@@ -97,7 +86,7 @@ fileprivate struct InfoRow: View {
 
 fileprivate struct CharacterSectionView: View {
 
-    let viewModel: FilmDetailViewModel
+    let store: StoreOf<FilmDetailFeature>
 
     var body: some View {
         GroupBox {
@@ -105,9 +94,12 @@ fileprivate struct CharacterSectionView: View {
                 Text("Characters")
                     .font(.headline)
 
-                switch viewModel.state {
-                case .idle: EmptyView()
-                case .loading: ProgressView()
+                switch store.peopleState {
+                case .idle:
+                    EmptyView()
+
+                case .loading:
+                    ProgressView()
 
                 case .loaded(let people):
                     if people.isEmpty {
@@ -117,9 +109,7 @@ fileprivate struct CharacterSectionView: View {
                     }
 
                     ForEach(people) { person in
-                        // STEP 4: Push a coordinator route (same pattern as FilmListView).
-                        // NavigationStack in CoordinatorNavigationStack resolves this route.
-                        NavigationLink(value: FilmCoordinatorRoute.personDetail(person)) {
+                        NavigationLink(value: FilmNavigationRoute.personDetail(person)) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(person.name)
 

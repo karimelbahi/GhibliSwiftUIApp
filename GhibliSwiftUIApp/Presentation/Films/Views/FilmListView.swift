@@ -4,29 +4,39 @@
 
 import SwiftUI
 
-// Generic so the same list works in Movies, Favorites, and Search tabs.
-public struct FilmListView<Coordinator: FilmNavigationCoordinating>: View {
+struct FilmListView: View {
 
     let films: [Film]
-    // Coordinator handles navigation + favorites access.
-    let coordinator: Coordinator
+    let favoriteIDs: Set<String>
+    let itemsPerPage: Int
+    let navigationRoute: (Film) -> FilmNavigationRoute
+    let onFavoriteTapped: (String) -> Void
 
-    public init(
+    init(
         films: [Film],
-        coordinator: Coordinator
+        favoriteIDs: Set<String>,
+        itemsPerPage: Int = 20,
+        navigationRoute: @escaping (Film) -> FilmNavigationRoute,
+        onFavoriteTapped: @escaping (String) -> Void
     ) {
         self.films = films
-        self.coordinator = coordinator
+        self.favoriteIDs = favoriteIDs
+        self.itemsPerPage = itemsPerPage
+        self.navigationRoute = navigationRoute
+        self.onFavoriteTapped = onFavoriteTapped
     }
 
-    public var body: some View {
-        List(films) { film in
-            // Push a coordinator route (not Film directly).
-            // CoordinatorNavigationStack converts route -> FilmDetailScreen.
-            NavigationLink(value: FilmCoordinatorRoute.detail(film)) {
+    private var displayedFilms: [Film] {
+        Array(films.prefix(itemsPerPage))
+    }
+
+    var body: some View {
+        List(displayedFilms) { film in
+            NavigationLink(value: navigationRoute(film)) {
                 FilmRow(
                     film: film,
-                    favoritesViewModel: coordinator.favoritesViewModel
+                    isFavorite: favoriteIDs.contains(film.id),
+                    onFavoriteTapped: { onFavoriteTapped(film.id) }
                 )
             }
         }
@@ -36,7 +46,8 @@ public struct FilmListView<Coordinator: FilmNavigationCoordinating>: View {
 private struct FilmRow: View {
 
     let film: Film
-    let favoritesViewModel: FavoritesViewModel
+    let isFavorite: Bool
+    let onFavoriteTapped: () -> Void
 
     var body: some View {
         HStack(alignment: .top) {
@@ -49,7 +60,7 @@ private struct FilmRow: View {
                         .bold()
 
                     Spacer()
-                    FavoriteButton(filmID: film.id, favoritesViewModel: favoritesViewModel)
+                    FavoriteButton(isFavorite: isFavorite, action: onFavoriteTapped)
                         .buttonStyle(.plain)
                         .controlSize(.large)
                 }

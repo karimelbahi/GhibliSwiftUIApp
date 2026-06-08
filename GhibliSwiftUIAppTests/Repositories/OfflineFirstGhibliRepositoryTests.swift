@@ -7,6 +7,7 @@ import Foundation
 import Testing
 @testable import GhibliSwiftUIApp
 
+@MainActor
 struct OfflineFirstGhibliRepositoryTests {
 
     private func makeRepository(
@@ -27,7 +28,7 @@ struct OfflineFirstGhibliRepositoryTests {
 
         #expect(films == TestFixtures.films)
 
-        let loadCallCount = await cache.loadFilmsCallCount
+        let loadCallCount = cache.loadFilmsCallCount
         #expect(loadCallCount == 1)
     }
 
@@ -42,8 +43,8 @@ struct OfflineFirstGhibliRepositoryTests {
         #expect(films == TestFixtures.films)
 
         let remoteCallCount = await remote.fetchFilmsCallCount
-        let saveCallCount = await cache.saveFilmsCallCount
-        let cachedFilms = await cache.films
+        let saveCallCount = cache.saveFilmsCallCount
+        let cachedFilms = cache.films
 
         #expect(remoteCallCount == 1)
         #expect(saveCallCount == 1)
@@ -132,7 +133,7 @@ struct OfflineFirstGhibliRepositoryTests {
 
         #expect(people == TestFixtures.people)
 
-        let loadCallCount = await cache.loadPeopleCallCount
+        let loadCallCount = cache.loadPeopleCallCount
         #expect(loadCallCount == 1)
     }
 
@@ -147,8 +148,8 @@ struct OfflineFirstGhibliRepositoryTests {
         #expect(people == TestFixtures.people)
 
         let remoteCallCount = await remote.fetchPeopleCallCount
-        let saveCallCount = await cache.savePeopleCallCount
-        let savedFilmId = await cache.lastSavedFilmId
+        let saveCallCount = cache.savePeopleCallCount
+        let savedFilmId = cache.lastSavedFilmId
 
         #expect(remoteCallCount == 1)
         #expect(saveCallCount == 1)
@@ -183,8 +184,8 @@ struct OfflineFirstGhibliRepositoryTests {
         try await Task.sleep(for: .milliseconds(100))
 
         let remoteCallCount = await remote.fetchFilmsCallCount
-        let saveCallCount = await cache.saveFilmsCallCount
-        let cachedFilms = await cache.films
+        let saveCallCount = cache.saveFilmsCallCount
+        let cachedFilms = cache.films
 
         #expect(remoteCallCount == 1)
         #expect(saveCallCount >= 2)

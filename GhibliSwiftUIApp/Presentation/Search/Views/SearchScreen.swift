@@ -2,41 +2,59 @@
 //  SearchScreen.swift
 //
 
+import ComposableArchitecture
 import SwiftUI
 
-public struct SearchScreen: View {
+struct SearchScreen: View {
 
-    // Local UI state for search field text.
-    @State private var text: String = ""
-    // Search tab coordinator provides search VM + navigation.
-    let coordinator: SearchCoordinator
+    @Bindable var store: StoreOf<SearchFeature>
+    let ghibliClient: GhibliClient
+    let itemsPerPage: Int
 
-    public init(coordinator: SearchCoordinator) {
-        self.coordinator = coordinator
+    init(
+        store: StoreOf<SearchFeature>,
+        ghibliClient: GhibliClient,
+        itemsPerPage: Int = 20
+    ) {
+        self.store = store
+        self.ghibliClient = ghibliClient
+        self.itemsPerPage = itemsPerPage
     }
 
-    public var body: some View {
-        VStack {
-            switch coordinator.searchViewModel.state {
-            case .idle:
-                Text("Your search results will be shown here.")
-                    .foregroundStyle(.secondary)
-            case .loading:
-                ProgressView()
-            case .error(let error):
-                Text(error)
-            case .loaded(let films):
-                FilmListView(
-                    films: films,
-                    coordinator: coordinator
-                )
+    var body: some View {
+        NavigationStack {
+            VStack {
+                switch store.searchState {
+                case .idle:
+                    Text("Your search results will be shown here.")
+                        .foregroundStyle(.secondary)
+
+                case .loading:
+                    ProgressView()
+
+                case .error(let error):
+                    Text(error)
+
+                case .loaded(let films):
+                    FilmListView(
+                        films: films,
+                        favoriteIDs: store.favoriteIDs,
+                        itemsPerPage: itemsPerPage,
+                        navigationRoute: { .filmDetail($0) },
+                        onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
+                    )
+                }
             }
-        }
-        .navigationTitle("Search Ghibli Movies")
-        .searchable(text: $text)
-        // Debounced fetch is still view-model responsibility, not coordinator.
-        .task(id: text) {
-            await coordinator.searchViewModel.fetch(for: text)
+            .navigationTitle("Search Ghibli Movies")
+            .searchable(text: Binding(
+                get: { store.searchText },
+                set: { store.send(.searchTextChanged($0)) }
+            ))
+            .filmNavigationDestinations(
+                ghibliClient: ghibliClient,
+                favoriteIDs: store.favoriteIDs,
+                onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
+            )
         }
     }
 }

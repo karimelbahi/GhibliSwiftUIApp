@@ -2,40 +2,57 @@
 //  FilmsScreen.swift
 //
 
+import ComposableArchitecture
 import SwiftUI
 
-public struct FilmsScreen: View {
+struct FilmsScreen: View {
 
-    // Coordinator gives this screen access to view models and navigation context.
-    let coordinator: FilmsCoordinator
+    @Bindable var store: StoreOf<FilmsFeature>
+    let ghibliClient: GhibliClient
+    let itemsPerPage: Int
 
-    public init(coordinator: FilmsCoordinator) {
-        self.coordinator = coordinator
+    init(
+        store: StoreOf<FilmsFeature>,
+        ghibliClient: GhibliClient,
+        itemsPerPage: Int = 20
+    ) {
+        self.store = store
+        self.ghibliClient = ghibliClient
+        self.itemsPerPage = itemsPerPage
     }
 
-    public var body: some View {
-        Group {
-            // UI only: switch on data state from coordinator's view model.
-            switch coordinator.filmsViewModel.state {
-            case .idle:
-                Text("No Films yet")
+    var body: some View {
+        NavigationStack {
+            Group {
+                switch store.filmsState {
+                case .idle:
+                    Text("No Films yet")
 
-            case .loading:
-                ProgressView {
-                    Text("Loading ...")
+                case .loading:
+                    ProgressView {
+                        Text("Loading ...")
+                    }
+
+                case .loaded(let films):
+                    FilmListView(
+                        films: films,
+                        favoriteIDs: store.favoriteIDs,
+                        itemsPerPage: itemsPerPage,
+                        navigationRoute: { .filmDetail($0) },
+                        onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
+                    )
+
+                case .error(let error):
+                    Text(error)
+                        .foregroundStyle(.pink)
                 }
-            case .loaded(let films):
-                // List view pushes routes; coordinator resolves destination screen.
-                FilmListView(
-                    films: films,
-                    coordinator: coordinator
-                )
-            case .error(let error):
-                Text(error)
-                    .foregroundStyle(.pink)
             }
+            .navigationTitle("Ghibli Movies")
+            .filmNavigationDestinations(
+                ghibliClient: ghibliClient,
+                favoriteIDs: store.favoriteIDs,
+                onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
+            )
         }
-        // Title only; NavigationStack is owned by FilmsCoordinator.
-        .navigationTitle("Ghibli Movies")
     }
 }
