@@ -177,7 +177,7 @@ Favorites use **UserDefaults** via `FavoritesClient` / `FavoriteStorage` (not Sw
 
 Navigation is **reducer-driven** using TCA `StackState` and `.forEach(\.path, action: \.path)`. Each tab feature owns its navigation stack; child reducers compose into the path.
 
-For a step-by-step walkthrough of the film list → detail flow (with TCA explanations and effects), see **[NAVIGATION_TCA_GUIDE.md](NAVIGATION_TCA_GUIDE.md)**.
+For a step-by-step walkthrough of the **Films** tab list → detail flow (with TCA explanations and effects), see **[FILMS_NAVIGATION_TCA_GUIDE.md](FILMS_NAVIGATION_TCA_GUIDE.md)**.
 
 For film detail → person detail (child intent, parent-owned stack), see **[PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md)**.
 

@@ -318,4 +318,4 @@ case let .path(.element(id: _, action: .filmDetail(.personTapped(person)))):
     return .none
 ```
 
-See also: [NAVIGATION_TCA_GUIDE.md](NAVIGATION_TCA_GUIDE.md) for the list → detail flow that happens before this one.
+See also: [FILMS_NAVIGATION_TCA_GUIDE.md](FILMS_NAVIGATION_TCA_GUIDE.md) for the list → detail flow that happens before this one.

@@ -1,4 +1,4 @@
-# TCA Navigation: Film List → Detail
+# TCA Navigation: Films List → Film Detail
 
 I'll trace the full film list → detail navigation path and annotate each TCA-related line.
 
@@ -373,3 +373,15 @@ case let .path(.element(id: _, action: .filmDetail(.personTapped(person)))):
 Child emits intent → parent owns the navigation stack. That keeps **one `NavigationStack`** and avoids SwiftUI `comparisonTypeMismatch` crashes from nested stacks.
 
 See also: [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) for the full detail → person walkthrough.
+
+---
+
+## TCA guides (complete set)
+
+| Flow | Guide |
+|------|-------|
+| Films list → detail | This file |
+| Detail → person | [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) |
+| Favorites list → detail | [FAVORITES_NAVIGATION_TCA_GUIDE.md](FAVORITES_NAVIGATION_TCA_GUIDE.md) |
+| Search results → detail | [SEARCH_NAVIGATION_TCA_GUIDE.md](SEARCH_NAVIGATION_TCA_GUIDE.md) |
+| Settings form + bindings | [SETTINGS_TCA_GUIDE.md](SETTINGS_TCA_GUIDE.md) |

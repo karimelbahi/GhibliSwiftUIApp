@@ -233,7 +233,7 @@ User changes control → store.send(.appearanceThemeChanged) → state update �
 
 | Topic | Guide |
 |-------|-------|
-| Stack navigation (list → detail) | [NAVIGATION_TCA_GUIDE.md](NAVIGATION_TCA_GUIDE.md) |
+| Stack navigation (list → detail) | [FILMS_NAVIGATION_TCA_GUIDE.md](FILMS_NAVIGATION_TCA_GUIDE.md) |
 | Detail → person | [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) |
 | Favorites list → detail | [FAVORITES_NAVIGATION_TCA_GUIDE.md](FAVORITES_NAVIGATION_TCA_GUIDE.md) |
 | Search results → detail | [SEARCH_NAVIGATION_TCA_GUIDE.md](SEARCH_NAVIGATION_TCA_GUIDE.md) |

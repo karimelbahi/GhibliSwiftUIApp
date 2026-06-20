@@ -4,7 +4,7 @@ I'll trace the full search results → film detail navigation path and annotate 
 
 Here is the full search results → detail flow, file by file, with TCA notes on each important line. I also explain effects at the end.
 
-This tab uses the **same** `FilmTabNavigation` stack, `FilmTabPathDestinationView`, `FilmDetailScreen`, and `FilmDetailFeature` as the Movies tab after `.filmDetail` is pushed. See [NAVIGATION_TCA_GUIDE.md](NAVIGATION_TCA_GUIDE.md) from Step 5 onward for those shared pieces.
+This tab uses the **same** `FilmTabNavigation` stack, `FilmTabPathDestinationView`, `FilmDetailScreen`, and `FilmDetailFeature` as the Movies tab after `.filmDetail` is pushed. See [FILMS_NAVIGATION_TCA_GUIDE.md](FILMS_NAVIGATION_TCA_GUIDE.md) from Step 5 onward for those shared pieces.
 
 For detail → person on this tab, see [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) — only the **parent feature** name changes (`SearchFeature` instead of `FilmsFeature`).
 
@@ -158,7 +158,7 @@ After `.filmDetail` is appended, the flow is **identical** to the Movies tab:
 
 | Step | Shared component | Guide |
 |------|------------------|-------|
-| Stack path enum | `FilmTabNavigation` | [NAVIGATION_TCA_GUIDE.md](NAVIGATION_TCA_GUIDE.md) Step 5 |
+| Stack path enum | `FilmTabNavigation` | [FILMS_NAVIGATION_TCA_GUIDE.md](FILMS_NAVIGATION_TCA_GUIDE.md) Step 5 |
 | Destination switch | `FilmTabPathDestinationView` | Step 7 |
 | Detail screen | `FilmDetailScreen` | Step 8 |
 | Detail reducer + `.run` | `FilmDetailFeature` | Step 9 |
@@ -244,7 +244,7 @@ case let .searchTextChanged(searchTerm):
 
 | Flow | Guide |
 |------|-------|
-| Movies list → detail | [NAVIGATION_TCA_GUIDE.md](NAVIGATION_TCA_GUIDE.md) |
+| Films list → detail | [FILMS_NAVIGATION_TCA_GUIDE.md](FILMS_NAVIGATION_TCA_GUIDE.md) |
 | Detail → person | [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) |
 | Favorites list → detail | [FAVORITES_NAVIGATION_TCA_GUIDE.md](FAVORITES_NAVIGATION_TCA_GUIDE.md) |
 | Search results → detail | This file |

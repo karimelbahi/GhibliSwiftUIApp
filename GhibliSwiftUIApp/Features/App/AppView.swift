@@ -15,7 +15,7 @@ struct AppView: View {
             Tab("Movies", systemImage: "movieclapper") {
                 FilmsScreen(
                     // TCA: Scope = slice the root store down to FilmsFeature only.
-                    //      Reads AppFeature.State.films, sends actions as AppFeature.Action.films(...).
+                    //      See FILMS_NAVIGATION_TCA_GUIDE.md for list → detail flow.
                     store: store.scope(state: \.films, action: \.films),
                     itemsPerPage: store.settings.itemsPerPage
                 )
