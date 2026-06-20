@@ -31,7 +31,7 @@ enum SettingsStorage {
     }
 
     static func reset() -> SettingsFeature.State {
-        var state = SettingsFeature.State()
+        let state = SettingsFeature.State()
         save(state)
         return state
     }

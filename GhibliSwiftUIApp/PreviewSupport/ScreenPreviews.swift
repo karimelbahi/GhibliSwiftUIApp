@@ -14,8 +14,7 @@ import SwiftUI
             )
         ) {
             FilmsFeature(ghibliClient: ghibliClient)
-        },
-        ghibliClient: ghibliClient
+        }
     )
 }
 

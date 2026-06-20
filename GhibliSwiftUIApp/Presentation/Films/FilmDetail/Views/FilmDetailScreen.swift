@@ -59,7 +59,6 @@ struct FilmDetailScreen: View {
         .toolbar {
             FavoriteButton(isFavorite: isFavorite, action: onFavoriteTapped)
         }
-        .personNavigationDestination()
         .task(id: store.film.id) {
             store.send(.onAppear)
         }
@@ -86,7 +85,7 @@ fileprivate struct InfoRow: View {
 
 fileprivate struct CharacterSectionView: View {
 
-    let store: StoreOf<FilmDetailFeature>
+    @Bindable var store: StoreOf<FilmDetailFeature>
 
     var body: some View {
         GroupBox {
@@ -109,7 +108,9 @@ fileprivate struct CharacterSectionView: View {
                     }
 
                     ForEach(people) { person in
-                        NavigationLink(value: FilmNavigationRoute.personDetail(person)) {
+                        Button {
+                            store.send(.personTapped(person))
+                        } label: {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(person.name)
 
@@ -125,6 +126,7 @@ fileprivate struct CharacterSectionView: View {
                                 .lineLimit(1)
                             }
                         }
+                        .buttonStyle(.plain)
                     }
 
                 case .error(let error):

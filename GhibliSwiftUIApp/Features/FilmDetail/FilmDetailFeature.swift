@@ -16,11 +16,12 @@ struct FilmDetailFeature: Reducer {
     enum Action: Equatable {
         case onAppear
         case fetchPeopleResponse(Result<[Person], DomainError>)
+        case personTapped(Person)
     }
 
     let ghibliClient: GhibliClient
 
-    init(ghibliClient: GhibliClient) {
+    init(ghibliClient: GhibliClient = GhibliClient()) {
         self.ghibliClient = ghibliClient
     }
 
@@ -50,6 +51,9 @@ struct FilmDetailFeature: Reducer {
 
             case let .fetchPeopleResponse(.failure(error)):
                 state.peopleState = .error(error.userMessage)
+                return .none
+
+            case .personTapped:
                 return .none
             }
         }

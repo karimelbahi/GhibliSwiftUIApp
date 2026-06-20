@@ -35,6 +35,20 @@ struct FilmsFeatureTests {
         }
     }
 
+    @Test("Film tapped appends detail to navigation path")
+    func filmTappedAppendsDetailToPath() async {
+        let film = TestFixtures.films[0]
+        let store = TestStore(
+            initialState: FilmsFeature.State(filmsState: .loaded(TestFixtures.films))
+        ) {
+            FilmsFeature(ghibliClient: makeMockGhibliClient())
+        }
+
+        await store.send(.filmTapped(film)) {
+            $0.path.append(.filmDetail(FilmDetailFeature.State(film: film)))
+        }
+    }
+
     @Test("Fetch sets domain error message")
     func fetchSetsDomainError() async {
         let store = TestStore(initialState: FilmsFeature.State()) {

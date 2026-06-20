@@ -8,21 +8,18 @@ import SwiftUI
 struct SearchScreen: View {
 
     @Bindable var store: StoreOf<SearchFeature>
-    let ghibliClient: GhibliClient
     let itemsPerPage: Int
 
     init(
         store: StoreOf<SearchFeature>,
-        ghibliClient: GhibliClient,
         itemsPerPage: Int = 20
     ) {
         self.store = store
-        self.ghibliClient = ghibliClient
         self.itemsPerPage = itemsPerPage
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             VStack {
                 switch store.searchState {
                 case .idle:
@@ -40,7 +37,7 @@ struct SearchScreen: View {
                         films: films,
                         favoriteIDs: store.favoriteIDs,
                         itemsPerPage: itemsPerPage,
-                        navigationRoute: { .filmDetail($0) },
+                        onFilmTapped: { store.send(.filmTapped($0)) },
                         onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
                     )
                 }
@@ -50,8 +47,9 @@ struct SearchScreen: View {
                 get: { store.searchText },
                 set: { store.send(.searchTextChanged($0)) }
             ))
-            .filmNavigationDestinations(
-                ghibliClient: ghibliClient,
+        } destination: { pathStore in
+            FilmTabPathDestinationView(
+                store: pathStore,
                 favoriteIDs: store.favoriteIDs,
                 onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
             )

@@ -11,12 +11,16 @@ struct FilmsFeature: Reducer {
     struct State: Equatable {
         var filmsState: LoadingState<[Film]> = .idle
         var favoriteIDs: Set<String> = []
+        var path = StackState<FilmTabNavigation.State>()
     }
 
+    @CasePathable
     enum Action: Equatable {
         case onAppear
         case fetchFilmsResponse(Result<[Film], DomainError>)
         case favoriteButtonTapped(String)
+        case filmTapped(Film)
+        case path(StackActionOf<FilmTabNavigation>)
     }
 
     let ghibliClient: GhibliClient
@@ -54,9 +58,20 @@ struct FilmsFeature: Reducer {
                 state.filmsState = .error(error.userMessage)
                 return .none
 
-            case .favoriteButtonTapped:
+            case let .filmTapped(film):
+                state.path.append(.filmDetail(FilmDetailFeature.State(film: film)))
+                return .none
+
+            case let .path(.element(id: _, action: .filmDetail(.personTapped(person)))):
+                state.path.append(.personDetail(PersonDetailFeature.State(person: person)))
+                return .none
+
+            case .favoriteButtonTapped, .path:
                 return .none
             }
+        }
+        .forEach(\.path, action: \.path) {
+            FilmTabNavigation(ghibliClient: ghibliClient)
         }
     }
 }

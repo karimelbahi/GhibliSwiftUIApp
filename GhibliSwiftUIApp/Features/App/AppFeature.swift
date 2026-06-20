@@ -16,6 +16,7 @@ struct AppFeature: Reducer {
         var settings = SettingsFeature.State()
     }
 
+    @CasePathable
     enum Action: Equatable {
         case onAppear
         case favoriteIDsLoaded(Set<String>)
@@ -36,11 +37,6 @@ struct AppFeature: Reducer {
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
-            let filmsReducer = FilmsFeature(ghibliClient: ghibliClient)
-            let favoritesReducer = FavoritesFeature(ghibliClient: ghibliClient)
-            let searchReducer = SearchFeature(ghibliClient: ghibliClient)
-            let settingsReducer = SettingsFeature()
-
             switch action {
             case .onAppear:
                 state.settings = SettingsStorage.load()
@@ -71,27 +67,26 @@ struct AppFeature: Reducer {
                     favoritesClient.saveFavoriteIDs(favoriteIDs)
                 }
 
-            case let .films(filmsAction):
-                if case let .favoriteButtonTapped(id) = filmsAction {
-                    return .send(.toggleFavorite(id))
-                }
-                return filmsReducer.reduce(into: &state.films, action: filmsAction).map(Action.films)
+            case let .films(.favoriteButtonTapped(id)),
+                 let .favorites(.favoriteButtonTapped(id)),
+                 let .search(.favoriteButtonTapped(id)):
+                return .send(.toggleFavorite(id))
 
-            case let .favorites(favoritesAction):
-                if case let .favoriteButtonTapped(id) = favoritesAction {
-                    return .send(.toggleFavorite(id))
-                }
-                return favoritesReducer.reduce(into: &state.favorites, action: favoritesAction).map(Action.favorites)
-
-            case let .search(searchAction):
-                if case let .favoriteButtonTapped(id) = searchAction {
-                    return .send(.toggleFavorite(id))
-                }
-                return searchReducer.reduce(into: &state.search, action: searchAction).map(Action.search)
-
-            case let .settings(settingsAction):
-                return settingsReducer.reduce(into: &state.settings, action: settingsAction).map(Action.settings)
+            case .films, .favorites, .search, .settings:
+                return .none
             }
+        }
+        Scope(state: \.films, action: \.films) {
+            FilmsFeature(ghibliClient: ghibliClient)
+        }
+        Scope(state: \.favorites, action: \.favorites) {
+            FavoritesFeature(ghibliClient: ghibliClient)
+        }
+        Scope(state: \.search, action: \.search) {
+            SearchFeature(ghibliClient: ghibliClient)
+        }
+        Scope(state: \.settings, action: \.settings) {
+            SettingsFeature()
         }
     }
 

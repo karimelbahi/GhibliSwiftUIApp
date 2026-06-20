@@ -10,7 +10,7 @@ A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app
 - URLSession with async/await
 - **SwiftData** for offline-first local caching (films catalog + film people)
 - Clean Architecture (Domain, Data, Features, Presentation, App) + TCA
-- **SwiftUI `NavigationStack`** with shared `FilmNavigationRoute` destinations
+- **TCA `StackState` navigation** with SwiftUI `NavigationStack` path bindings
 - Swift Testing with `TestStore`, mocks, and constructor injection
 
 ## API
@@ -107,7 +107,7 @@ flowchart TB
 | Layer | Location | Responsibility |
 |-------|----------|----------------|
 | **App** | `App/` | Composition root (`LiveDependencies`, `GhibliCacheContainer`), `ContentView`, `AppView`, app entry, `.modelContainer` |
-| **Features** | `Features/` | TCA reducers (`AppFeature`, tab features, detail features), shared navigation routes |
+| **Features** | `Features/` | TCA reducers (`AppFeature`, tab features, detail features), `StackState` navigation via `.forEach(\.path, action: \.path)` |
 | **Clients** | `Clients/` | `GhibliClient`, `FavoritesClient`, `LiveDependencies`, `SettingsStorage` — boundary between features and data |
 | **Presentation** | `Presentation/` | SwiftUI views bound to `StoreOf<Feature>`, `LoadingState` |
 | **Domain** | `Domain/` | Pure Swift entities, repository **protocols**, `DomainError` |
@@ -125,7 +125,7 @@ flowchart TB
 | `OfflineFirstGhibliRepository` → `DefaultGhibliRepository` + cache | Same stack with `MockGhibliService` |
 | `DefaultFavoriteStorage` | `MockFavoriteStorage` |
 
-`ContentView` calls `LiveDependencies.make(...)`, creates the root `Store<AppFeature>`, and passes `ghibliClient` to `AppView` for navigation destinations.
+`ContentView` calls `LiveDependencies.make(...)`, injects `ghibliClient` and `favoritesClient` into `AppFeature` when creating the root `Store<AppFeature>`, and passes that store to `AppView`.
 
 ### Offline-first data flow
 
@@ -175,7 +175,7 @@ Favorites use **UserDefaults** via `FavoritesClient` / `FavoriteStorage` (not Sw
 
 ### Navigation (TCA + SwiftUI)
 
-Navigation is handled by **SwiftUI `NavigationStack`** and shared routes in `Features/Shared/FilmNavigationDestination.swift`. Views render UI; tab screens own their `NavigationStack` and push `FilmNavigationRoute` values.
+Navigation is **reducer-driven** using TCA `StackState` and `.forEach(\.path, action: \.path)`. Each tab feature owns its navigation stack; child reducers compose into the path.
 
 ```mermaid
 flowchart TB
@@ -184,42 +184,43 @@ flowchart TB
     AppView --> SearchScreen
     AppView --> SettingsScreen
 
-    FilmsScreen --> FilmDetailScreen
-    FavoritesScreen --> FilmDetailScreen
-    SearchScreen --> FilmDetailScreen
+    FilmsScreen -->|"path: .filmDetail"| FilmDetailScreen
+    FavoritesScreen -->|"path: .filmDetail"| FilmDetailScreen
+    SearchScreen -->|"path: .filmDetail"| FilmDetailScreen
 
-    FilmDetailScreen --> PersonDetailScreen
+    FilmDetailScreen -->|"same stack: .personDetail"| PersonDetailScreen
 ```
 
 **Flows:**
 
-1. **Film list → detail** — user taps a film in `FilmListView` → `FilmNavigationRoute.filmDetail(film)` is pushed → `filmNavigationDestinations` presents `FilmDetailScreen` with a scoped `FilmDetailFeature` store.
-2. **Film detail → person detail** — user taps a character → `FilmNavigationRoute.personDetail(person)` is pushed → `personNavigationDestination` presents `PersonDetailScreen`.
+1. **Film list → detail** — user taps a film in `FilmListView` → tab feature receives `.filmTapped(film)` → reducer appends `FilmDetailFeature.State` to `path` → `NavigationStack` presents `FilmDetailScreen` with a scoped store.
+2. **Film detail → person detail** — user taps a character → `FilmDetailFeature` receives `.personTapped(person)` → parent tab feature appends `.personDetail(...)` to the **same** navigation stack (no nested `NavigationStack`).
 
 **Responsibilities:**
 
 1. **`AppFeature`** — owns shared `favoriteIDs`, coordinates tab child features, loads favorites on appear, persists favorite toggles.
-2. **`AppView`** — owns the `TabView`, scopes child stores (`films`, `favorites`, `search`, `settings`), passes `ghibliClient` to data-driven tabs.
-3. **`FilmNavigationRoute`** — shared route enum (`.filmDetail(Film)`, `.personDetail(Person)`).
-4. **`filmNavigationDestinations`** — maps film-list routes to `FilmDetailScreen` / `PersonDetailScreen`, injects `ghibliClient`, and reads live `favoriteIDs` from the parent tab store.
-5. **Views** — bind to `StoreOf<Feature>`; list screens push routes via `NavigationLink(value:)`.
+2. **`AppView`** — owns the `TabView` and scopes child stores (`films`, `favorites`, `search`, `settings`).
+3. **`FilmTabNavigation.Path`** — shared `@Reducer` enum (`.filmDetail`, `.personDetail`) composed into each tab's `StackState`.
+4. **Tab features** — own `path: StackState<FilmTabNavigation.State>()` and compose `FilmTabNavigation(ghibliClient:)` via `.forEach(\.path, action: \.path)`.
+5. **Views** — one `NavigationStack` per tab, bound with `$store.scope(state: \.path, action: \.path)`; destinations use `switch store.case`.
 
-#### Adding a new screen
+#### Adding a new screen to the tab navigation stack
+
+All tab screens share a single path type (`FilmTabNavigation.Path`). To add a new destination, extend that shared type — no new `StackState` or extra `NavigationStack` is needed.
 
 | Step | Action | Example |
 |------|--------|---------|
-| 1 | Add a route case | `case personDetail(Person)` in `FilmNavigationRoute` |
-| 2 | Create the feature + view | `PersonDetailFeature.swift`, `PersonDetailScreen.swift` |
-| 3a | Map route → screen | `case .personDetail(let person):` in `FilmNavigationDestinationModifier` |
-| 3b | Add navigation modifier (if nested) | `personNavigationDestination()` on `FilmDetailScreen` |
-| 4 | Trigger navigation | `NavigationLink(value: FilmNavigationRoute.personDetail(person))` |
+| 1 | Add a case to `FilmTabNavigation.Path` | `case newScreen(NewFeature)` |
+| 2 | Create the feature + view | `NewFeature.swift`, `NewScreen.swift` |
+| 3 | Wire the child reducer in `FilmTabNavigation.body` | `.ifCaseLet(/State.newScreen, action: /Action.newScreen) { NewFeature() }` |
+| 4 | Handle the trigger action in the tab feature's reducer | `case .somethingTapped: state.path.append(.newScreen(NewFeature.State(...))); return .none` |
+| 5 | Render the destination in `FilmTabPathDestinationView` | Add `case let .newScreen(store):` to the `switch store.case` block |
 
-**Why a shared route enum and navigation modifier?**
+**Why `StackState` in the reducer?**
 
-- `FilmNavigationRoute` — **types** pushed destinations so film lists and detail screens use the same navigation contract.
-- `filmNavigationDestinations(...)` — **builds** destination views (and ephemeral detail stores) when a route is active, wiring `ghibliClient` and live favorite state from the parent tab.
-
-If you only navigate from one screen, you can use a local `navigationDestination` instead of the shared modifier.
+- Navigation stack is part of app state — push/pop is testable with `TestStore`.
+- Child features stay composable via `.forEach` instead of ephemeral stores created in view modifiers.
+- SwiftUI stays in sync through `$store.scope(state: \.path, action: \.path)`.
 
 ## Project Structure
 
@@ -243,7 +244,7 @@ GhibliSwiftUIApp/
 │   ├── Settings/                      SettingsFeature
 │   ├── FilmDetail/                    FilmDetailFeature
 │   ├── PersonDetail/                  PersonDetailFeature
-│   └── Shared/                        FilmNavigationDestination
+│   └── Shared/                        FilmTabNavigation (@Reducer enum Path shared across tabs)
 ├── Domain/
 │   ├── Entities/                      Film, Person
 │   ├── Errors/                        DomainError
@@ -265,10 +266,16 @@ GhibliSwiftUIApp/
 │       └── DefaultFavoritesRepository.swift
 ├── Presentation/
 │   ├── Common/                        LoadingState
-│   ├── Films/                         Views (Films, FilmDetail, PersonDetail, FilmList)
+│   ├── Films/
+│   │   ├── FilmsScreen/Views/         FilmsScreen
+│   │   ├── FilmDetail/Views/          FilmDetailScreen
+│   │   ├── FilmList/Views/            FilmListView
+│   │   ├── PersonDetail/Views/        PersonDetailScreen
+│   │   └── Shared/Views/              FavoriteButton, FilmImageView
 │   ├── Search/
 │   ├── Favorites/
-│   └── Settings/
+│   ├── Settings/
+│   └── Shared/                        FilmTabPathDestinationView (shared NavigationStack destination)
 ├── PreviewSupport/
 ├── Preview Assets/
 └── Assets.xcassets/
@@ -286,7 +293,7 @@ GhibliSwiftUIAppTests/
 - TabView with per-tab TCA stores scoped from `AppFeature`
 - **Movies** — offline-first film list (cache first, background refresh, network fallback); paginated via `itemsPerPage` from Settings
 - **Detail** — film info, async image loading, cached characters with network refresh; tap a character to open person detail
-- **Person detail** — character profile screen pushed via `FilmNavigationRoute.personDetail`
+- **Person detail** — character profile screen pushed by the parent tab feature intercepting `.personTapped` and appending `.personDetail` to its `StackState<FilmTabNavigation.State>`; `FilmDetailFeature` itself has no nested stack
 - **Favorites** — filtered list with loading/error states; local persistence via UserDefaults
 - **Search** — client-side filter with 500ms debounce (works offline when films are cached)
 - **Settings** — appearance theme and preferences stored in UserDefaults via `SettingsFeature`

@@ -8,16 +8,13 @@ import SwiftUI
 struct FavoritesScreen: View {
 
     @Bindable var store: StoreOf<FavoritesFeature>
-    let ghibliClient: GhibliClient
     let itemsPerPage: Int
 
     init(
         store: StoreOf<FavoritesFeature>,
-        ghibliClient: GhibliClient,
         itemsPerPage: Int = 20
     ) {
         self.store = store
-        self.ghibliClient = ghibliClient
         self.itemsPerPage = itemsPerPage
     }
 
@@ -27,7 +24,7 @@ struct FavoritesScreen: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             Group {
                 switch store.filmsState {
                 case .idle:
@@ -46,7 +43,7 @@ struct FavoritesScreen: View {
                             films: favoriteFilms,
                             favoriteIDs: store.favoriteIDs,
                             itemsPerPage: itemsPerPage,
-                            navigationRoute: { .filmDetail($0) },
+                            onFilmTapped: { store.send(.filmTapped($0)) },
                             onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
                         )
                     }
@@ -57,8 +54,9 @@ struct FavoritesScreen: View {
                 }
             }
             .navigationTitle("Favorites")
-            .filmNavigationDestinations(
-                ghibliClient: ghibliClient,
+        } destination: { pathStore in
+            FilmTabPathDestinationView(
+                store: pathStore,
                 favoriteIDs: store.favoriteIDs,
                 onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
             )

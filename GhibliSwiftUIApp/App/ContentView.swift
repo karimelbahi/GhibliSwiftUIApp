@@ -8,7 +8,6 @@ import SwiftUI
 struct ContentView: View {
 
     let store: StoreOf<AppFeature>
-    let ghibliClient: GhibliClient
 
     init(
         cacheContainer: GhibliCacheContainer,
@@ -18,7 +17,6 @@ struct ContentView: View {
             cacheContainer: cacheContainer,
             useMockService: useMockService
         )
-        self.ghibliClient = ghibliClient
         store = Store(initialState: AppFeature.State()) {
             AppFeature(
                 ghibliClient: ghibliClient,
@@ -27,13 +25,12 @@ struct ContentView: View {
         }
     }
 
-    init(store: StoreOf<AppFeature>, ghibliClient: GhibliClient) {
+    init(store: StoreOf<AppFeature>) {
         self.store = store
-        self.ghibliClient = ghibliClient
     }
 
     var body: some View {
-        AppView(store: store, ghibliClient: ghibliClient)
+        AppView(store: store)
     }
 }
 
@@ -45,7 +42,6 @@ struct ContentView: View {
                 ghibliClient: ghibliClient,
                 favoritesClient: favoritesClient
             )
-        },
-        ghibliClient: ghibliClient
+        }
     )
 }
