@@ -23,6 +23,8 @@ struct AppView: View {
 
             Tab("Favorites", systemImage: "heart") {
                 FavoritesScreen(
+                    // TCA: Scope = slice root store to FavoritesFeature (own path stack).
+                    //      See FAVORITES_NAVIGATION_TCA_GUIDE.md for list → detail flow.
                     store: store.scope(state: \.favorites, action: \.favorites),
                     itemsPerPage: store.settings.itemsPerPage
                 )

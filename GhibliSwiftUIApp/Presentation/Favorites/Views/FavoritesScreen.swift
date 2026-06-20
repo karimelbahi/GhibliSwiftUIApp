@@ -7,10 +7,12 @@ import SwiftUI
 
 struct FavoritesScreen: View {
 
+    // TCA: @Bindable store = read state + two-way bind this tab's navigation path.
     @Bindable var store: StoreOf<FavoritesFeature>
     let itemsPerPage: Int
 
     init(
+        // TCA: StoreOf<FavoritesFeature> = Store scoped to this tab's State and Action.
         store: StoreOf<FavoritesFeature>,
         itemsPerPage: Int = 20
     ) {
@@ -18,12 +20,14 @@ struct FavoritesScreen: View {
         self.itemsPerPage = itemsPerPage
     }
 
+    // View-only: filter loaded films to favorites (synced from AppFeature via favoriteIDs).
     private var favoriteFilms: [Film] {
         guard let films = store.filmsState.data else { return [] }
         return films.filter { store.favoriteIDs.contains($0.id) }
     }
 
     var body: some View {
+        // TCA: Two-way bind NavigationStack to FavoritesFeature.State.path (this tab's own stack).
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             Group {
                 switch store.filmsState {
@@ -43,6 +47,7 @@ struct FavoritesScreen: View {
                             films: favoriteFilms,
                             favoriteIDs: store.favoriteIDs,
                             itemsPerPage: itemsPerPage,
+                            // TCA: store.send = dispatch Action into FavoritesFeature reducer.
                             onFilmTapped: { store.send(.filmTapped($0)) },
                             onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
                         )
@@ -55,6 +60,7 @@ struct FavoritesScreen: View {
             }
             .navigationTitle("Favorites")
         } destination: { pathStore in
+            // TCA: Shared destination — same FilmTabPathDestinationView as Movies/Search tabs.
             FilmTabPathDestinationView(
                 store: pathStore,
                 favoriteIDs: store.favoriteIDs,

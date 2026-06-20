@@ -181,6 +181,8 @@ For a step-by-step walkthrough of the film list → detail flow (with TCA explan
 
 For film detail → person detail (child intent, parent-owned stack), see **[PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md)**.
 
+For favorites list → film detail, see **[FAVORITES_NAVIGATION_TCA_GUIDE.md](FAVORITES_NAVIGATION_TCA_GUIDE.md)**.
+
 ```mermaid
 flowchart TB
     AppView --> FilmsScreen
