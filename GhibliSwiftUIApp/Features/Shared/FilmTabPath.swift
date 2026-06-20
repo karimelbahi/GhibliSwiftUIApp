@@ -18,6 +18,7 @@ struct FilmTabNavigation: Reducer {
     @Reducer
     enum Path {
         case filmDetail(FilmDetailFeature)
+        // TCA: Second stack destination — pushed when parent handles .personTapped from detail.
         case personDetail(PersonDetailFeature)
     }
 
@@ -32,6 +33,7 @@ struct FilmTabNavigation: Reducer {
             .ifCaseLet(\State.Cases.filmDetail, action: \Action.Cases.filmDetail) {
                 FilmDetailFeature(ghibliClient: ghibliClient)
             }
+            // TCA: ifCaseLet = run PersonDetailFeature when stack item is .personDetail(...).
             .ifCaseLet(\State.Cases.personDetail, action: \Action.Cases.personDetail) {
                 PersonDetailFeature()
             }

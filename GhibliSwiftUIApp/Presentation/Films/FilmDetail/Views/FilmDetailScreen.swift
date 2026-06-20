@@ -113,7 +113,8 @@ fileprivate struct CharacterSectionView: View {
 
                     ForEach(people) { person in
                         Button {
-                            // TCA: Child sends intent; parent FilmsFeature pushes .personDetail onto path.
+                            // TCA: Send intent to FilmDetailFeature — does NOT push screen here.
+                            //      Parent FilmsFeature intercepts via .path and appends .personDetail.
                             store.send(.personTapped(person))
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {

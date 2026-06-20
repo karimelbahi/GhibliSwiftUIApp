@@ -7,6 +7,7 @@ import SwiftUI
 
 struct PersonDetailScreen: View {
 
+    // TCA: Store scoped to PersonDetailFeature — one person on the navigation stack.
     let store: StoreOf<PersonDetailFeature>
 
     init(store: StoreOf<PersonDetailFeature>) {
@@ -16,6 +17,7 @@ struct PersonDetailScreen: View {
     var body: some View {
         List {
             Section("Profile") {
+                // TCA: Read state from store — set when parent pushed .personDetail onto path.
                 LabeledContent("Name", value: store.person.name)
                 LabeledContent("Gender", value: store.person.gender)
                 LabeledContent("Age", value: store.person.age)
@@ -37,6 +39,7 @@ struct PersonDetailScreen: View {
                 }
             }
         }
+        // TCA: No .task / store.send — navigation-only screen with no effects.
         .navigationTitle(store.person.name)
         .navigationBarTitleDisplayMode(.inline)
     }

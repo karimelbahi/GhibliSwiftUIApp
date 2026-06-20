@@ -370,6 +370,6 @@ case let .path(.element(id: _, action: .filmDetail(.personTapped(person)))):
     return .none
 ```
 
-Child emits intent → parent owns the navigation stack. That keeps **one `NavigationStack`** and avoids crashes.
+Child emits intent → parent owns the navigation stack. That keeps **one `NavigationStack`** and avoids SwiftUI `comparisonTypeMismatch` crashes from nested stacks.
 
-If you want, I can do the same annotated walkthrough for **Favorites tab** or **Search tab** navigation — they use the same pattern with the same `FilmTabNavigation` path.
+See also: [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) for the full detail → person walkthrough.

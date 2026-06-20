@@ -79,8 +79,10 @@ struct FilmsFeature: Reducer {
                 return .none
 
             case let .path(.element(id: _, action: .filmDetail(.personTapped(person)))):
-                // TCA: Parent intercepts child action from stack and pushes the next screen.
+                // TCA: Intercept stack child action — detail → person navigation.
+                //      Wrapped as .path(.element(..., .filmDetail(.personTapped))) from StackActionOf.
                 state.path.append(.personDetail(PersonDetailFeature.State(person: person)))
+                // TCA: .none = same NavigationStack grows by one item; no async effect.
                 return .none
 
             case .favoriteButtonTapped, .path:

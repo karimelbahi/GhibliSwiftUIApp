@@ -81,6 +81,7 @@ struct SearchFeature: Reducer {
                 return .none
 
             case let .path(.element(id: _, action: .filmDetail(.personTapped(person)))):
+                // TCA: Same detail → person navigation as FilmsFeature (parent-owned stack).
                 state.path.append(.personDetail(PersonDetailFeature.State(person: person)))
                 return .none
 

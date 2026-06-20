@@ -62,7 +62,9 @@ struct FilmDetailFeature: Reducer {
                 return .none
 
             case .personTapped:
-                // TCA: No local state change; parent FilmsFeature handles navigation via .path.
+                // TCA: Child does not own StackState — no path.append here.
+                //      Action bubbles: .path(.element(..., .filmDetail(.personTapped(person)))).
+                //      Parent FilmsFeature performs navigation; effect is .none.
                 return .none
             }
         }

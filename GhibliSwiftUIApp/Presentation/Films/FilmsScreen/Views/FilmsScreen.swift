@@ -23,6 +23,7 @@ struct FilmsScreen: View {
     var body: some View {
         // TCA: Two-way bind NavigationStack to state.path via scoped store binding.
         //      When path grows → push screen. When user taps Back → path shrinks.
+        //      Same stack handles list → detail AND detail → person (see PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md).
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             Group {
                 // TCA: Read observable state from the store; UI updates when reducer changes it.

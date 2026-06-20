@@ -24,6 +24,7 @@ struct FilmTabPathDestinationView: View {
             )
 
         case let .personDetail(personStore):
+            // TCA: personStore = StoreOf<PersonDetailFeature> — pushed after .personTapped bubbles up.
             PersonDetailScreen(store: personStore)
         }
     }
