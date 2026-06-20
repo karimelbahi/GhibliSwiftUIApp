@@ -2,22 +2,15 @@
 //  GhibliClient.swift
 //
 
+import ComposableArchitecture
 import Foundation
 
+// TCA: @DependencyClient registers this type in DependencyValues (see @Dependency(\.ghibliClient)).
+@DependencyClient
 struct GhibliClient: Sendable {
-    var fetchFilms: @Sendable () async throws -> [Film]
-    var searchFilms: @Sendable (_ searchTerm: String) async throws -> [Film]
-    var fetchPeople: @Sendable (_ film: Film) async throws -> [Person]
-
-    init(
-        fetchFilms: @escaping @Sendable () async throws -> [Film] = { [] },
-        searchFilms: @escaping @Sendable (_ searchTerm: String) async throws -> [Film] = { _ in [] },
-        fetchPeople: @escaping @Sendable (_ film: Film) async throws -> [Person] = { _ in [] }
-    ) {
-        self.fetchFilms = fetchFilms
-        self.searchFilms = searchFilms
-        self.fetchPeople = fetchPeople
-    }
+    var fetchFilms: @Sendable () async throws -> [Film] = { [] }
+    var searchFilms: @Sendable (_ searchTerm: String) async throws -> [Film] = { _ in [] }
+    var fetchPeople: @Sendable (_ film: Film) async throws -> [Person] = { _ in [] }
 }
 
 extension GhibliClient {
@@ -31,5 +24,17 @@ extension GhibliClient {
 
     static func preview(repository: GhibliRepository) -> GhibliClient {
         live(repository: repository)
+    }
+}
+
+extension GhibliClient: DependencyKey {
+    // Overridden at the composition root via Store.withDependencies { ... }.
+    static let liveValue = GhibliClient()
+}
+
+extension DependencyValues {
+    var ghibliClient: GhibliClient {
+        get { self[GhibliClient.self] }
+        set { self[GhibliClient.self] = newValue }
     }
 }

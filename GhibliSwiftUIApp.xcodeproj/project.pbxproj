@@ -14,6 +14,8 @@
 		883E94E12FD087BD00C7EEBE /* Clocks in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D92E93D9B00026ADE6 /* Clocks */; };
 		883E94E22FD087BD00C7EEBE /* CasePaths in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3DC2E93D9B00026ADE6 /* CasePaths */; };
 		883E94E32FD087BD00C7EEBE /* CasePaths in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3DC2E93D9B00026ADE6 /* CasePaths */; };
+		883E94E42FD087BD00C7EEBE /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3DE2E93D9B00026ADE6 /* Dependencies */; };
+		883E94E52FD087BD00C7EEBE /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3DE2E93D9B00026ADE6 /* Dependencies */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +73,7 @@
 				883E94DB2FD087BD00C7EEBE /* ComposableArchitecture in Frameworks */,
 				883E94DF2FD087BD00C7EEBE /* PerceptionCore in Frameworks */,
 				883E94E22FD087BD00C7EEBE /* CasePaths in Frameworks */,
+				883E94E42FD087BD00C7EEBE /* Dependencies in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,6 +85,7 @@
 				883E94E02FD087BD00C7EEBE /* PerceptionCore in Frameworks */,
 				883E94E12FD087BD00C7EEBE /* Clocks in Frameworks */,
 				883E94E32FD087BD00C7EEBE /* CasePaths in Frameworks */,
+				883E94E52FD087BD00C7EEBE /* Dependencies in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,6 +156,7 @@
 				17A1C3D52E93D9B00026ADE6 /* ComposableArchitecture */,
 				17A1C3D72E93D9B00026ADE6 /* PerceptionCore */,
 				17A1C3DC2E93D9B00026ADE6 /* CasePaths */,
+				17A1C3DE2E93D9B00026ADE6 /* Dependencies */,
 			);
 			productName = GhibliSwiftUIApp;
 			productReference = 170A28912E93D9B00026ADE6 /* GhibliSwiftUIApp.app */;
@@ -179,6 +184,7 @@
 				17A1C3D72E93D9B00026ADE6 /* PerceptionCore */,
 				17A1C3D92E93D9B00026ADE6 /* Clocks */,
 				17A1C3DC2E93D9B00026ADE6 /* CasePaths */,
+				17A1C3DE2E93D9B00026ADE6 /* Dependencies */,
 			);
 			productName = GhibliSwiftUIAppTests;
 			productReference = 170A289E2E93D9B20026ADE6 /* GhibliSwiftUIAppTests.xctest */;
@@ -244,6 +250,7 @@
 				17A1C3D62E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-perception" */,
 				17A1C3D82E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-clocks" */,
 				17A1C3DA2E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-case-paths" */,
+				17A1C3DD2E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 170A28922E93D9B00026ADE6 /* Products */;
@@ -663,6 +670,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		17A1C3DD2E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -685,6 +700,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 17A1C3DA2E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-case-paths" */;
 			productName = CasePaths;
+		};
+		17A1C3DE2E93D9B00026ADE6 /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17A1C3DD2E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

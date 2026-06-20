@@ -13,15 +13,15 @@ struct ContentView: View {
         cacheContainer: GhibliCacheContainer,
         useMockService: Bool = false
     ) {
-        let (ghibliClient, favoritesClient) = LiveDependencies.make(
-            cacheContainer: cacheContainer,
-            useMockService: useMockService
-        )
         store = Store(initialState: AppFeature.State()) {
-            AppFeature(
-                ghibliClient: ghibliClient,
-                favoritesClient: favoritesClient
+            AppFeature()
+        } withDependencies: {
+            let (ghibliClient, favoritesClient) = LiveDependencies.make(
+                cacheContainer: cacheContainer,
+                useMockService: useMockService
             )
+            $0.ghibliClient = ghibliClient
+            $0.favoritesClient = favoritesClient
         }
     }
 
@@ -35,13 +35,13 @@ struct ContentView: View {
 }
 
 #Preview {
-    let (ghibliClient, favoritesClient) = LiveDependencies.makePreview()
     ContentView(
         store: Store(initialState: AppFeature.State()) {
-            AppFeature(
-                ghibliClient: ghibliClient,
-                favoritesClient: favoritesClient
-            )
+            AppFeature()
+        } withDependencies: {
+            let (ghibliClient, favoritesClient) = LiveDependencies.makePreview()
+            $0.ghibliClient = ghibliClient
+            $0.favoritesClient = favoritesClient
         }
     )
 }

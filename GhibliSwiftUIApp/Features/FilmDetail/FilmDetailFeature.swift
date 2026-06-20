@@ -23,11 +23,7 @@ struct FilmDetailFeature: Reducer {
         case personTapped(Person)
     }
 
-    let ghibliClient: GhibliClient
-
-    init(ghibliClient: GhibliClient = GhibliClient()) {
-        self.ghibliClient = ghibliClient
-    }
+    @Dependency(\.ghibliClient) var ghibliClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -39,8 +35,8 @@ struct FilmDetailFeature: Reducer {
                     state.peopleState = .loading
                 }
                 let film = state.film
-                // TCA: .run = async Effect (network). Captures ghibliClient for the task.
-                return .run { [ghibliClient] send in
+                // TCA: .run = async Effect (network). Reads ghibliClient from @Dependency.
+                return .run { send in
                     do {
                         let people = try await ghibliClient.fetchPeople(film)
                         // TCA: send(...) dispatches a new Action when async work completes.

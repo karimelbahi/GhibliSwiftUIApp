@@ -182,6 +182,9 @@ After `.filmDetail` is appended, the flow is **identical** to the Movies tab:
 These run when the user **types**, not when they tap a result:
 
 ```swift
+@Dependency(\.ghibliClient) var ghibliClient
+@Dependency(\.continuousClock) var clock
+
 case let .searchTextChanged(searchTerm):
     state.searchText = searchTerm
 
@@ -193,8 +196,8 @@ case let .searchTextChanged(searchTerm):
 
     state.searchState = .loading
 
-    // TCA: .run = debounce 500ms, then search API.
-    return .run { [ghibliClient, clock] send in
+    // TCA: .run = debounce 500ms, then search API (clients from @Dependency).
+    return .run { send in
         try await clock.sleep(for: .milliseconds(500))
         try Task.checkCancellation()
         let films = try await ghibliClient.searchFilms(searchTerm)

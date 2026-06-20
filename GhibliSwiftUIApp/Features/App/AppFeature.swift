@@ -27,13 +27,7 @@ struct AppFeature: Reducer {
         case settings(SettingsFeature.Action)
     }
 
-    let ghibliClient: GhibliClient
-    let favoritesClient: FavoritesClient
-
-    init(ghibliClient: GhibliClient, favoritesClient: FavoritesClient) {
-        self.ghibliClient = ghibliClient
-        self.favoritesClient = favoritesClient
-    }
+    @Dependency(\.favoritesClient) var favoritesClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -41,7 +35,7 @@ struct AppFeature: Reducer {
             case .onAppear:
                 state.settings = SettingsStorage.load()
                 return .merge(
-                    .run { [favoritesClient] send in
+                    .run { send in
                         await send(.favoriteIDsLoaded(favoritesClient.loadFavoriteIDs()))
                     },
                     .send(.settings(.onAppear))
@@ -63,7 +57,7 @@ struct AppFeature: Reducer {
                 }
                 syncFavoriteIDs(into: &state)
                 let favoriteIDs = state.favoriteIDs
-                return .run { [favoritesClient] _ in
+                return .run { _ in
                     favoritesClient.saveFavoriteIDs(favoriteIDs)
                 }
 
@@ -77,13 +71,13 @@ struct AppFeature: Reducer {
             }
         }
         Scope(state: \.films, action: \.films) {
-            FilmsFeature(ghibliClient: ghibliClient)
+            FilmsFeature()
         }
         Scope(state: \.favorites, action: \.favorites) {
-            FavoritesFeature(ghibliClient: ghibliClient)
+            FavoritesFeature()
         }
         Scope(state: \.search, action: \.search) {
-            SearchFeature(ghibliClient: ghibliClient)
+            SearchFeature()
         }
         Scope(state: \.settings, action: \.settings) {
             SettingsFeature()

@@ -17,10 +17,10 @@ struct SearchFeatureTests {
         let store = TestStore(
             initialState: SearchFeature.State(searchState: .loaded(TestFixtures.films))
         ) {
-            SearchFeature(
-                ghibliClient: makeMockGhibliClient(),
-                clock: ImmediateClock()
-            )
+            SearchFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient()
+            $0.continuousClock = ImmediateClock()
         }
 
         await store.send(.searchTextChanged("")) {
@@ -33,10 +33,10 @@ struct SearchFeatureTests {
     func searchLoadsMatchingFilms() async {
         let clientState = MockGhibliClientState()
         let store = TestStore(initialState: SearchFeature.State()) {
-            SearchFeature(
-                ghibliClient: makeMockGhibliClient(state: clientState),
-                clock: ImmediateClock()
-            )
+            SearchFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient(state: clientState)
+            $0.continuousClock = ImmediateClock()
         }
 
         await store.send(.searchTextChanged("Totoro")) {

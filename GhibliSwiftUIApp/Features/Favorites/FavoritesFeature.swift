@@ -32,11 +32,7 @@ struct FavoritesFeature: Reducer {
         case path(StackActionOf<FilmTabNavigation>)
     }
 
-    let ghibliClient: GhibliClient
-
-    init(ghibliClient: GhibliClient) {
-        self.ghibliClient = ghibliClient
-    }
+    @Dependency(\.ghibliClient) var ghibliClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -47,7 +43,7 @@ struct FavoritesFeature: Reducer {
                     state.filmsState = .loading
                 }
                 // TCA: .run = fetch catalog so view can filter favorites client-side.
-                return .run { [ghibliClient] send in
+                return .run { send in
                     do {
                         let films = try await ghibliClient.fetchFilms()
                         await send(.fetchFilmsResponse(.success(films)))
@@ -83,7 +79,7 @@ struct FavoritesFeature: Reducer {
         }
         // TCA: .forEach = run FilmTabNavigation reducer for each item in state.path.
         .forEach(\.path, action: \.path) {
-            FilmTabNavigation(ghibliClient: ghibliClient)
+            FilmTabNavigation()
         }
     }
 }

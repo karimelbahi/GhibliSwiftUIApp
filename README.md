@@ -1,6 +1,6 @@
 # GhibliSwiftUIApp
 
-A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app/), built with **Clean Architecture + TCA (The Composable Architecture)**, constructor-injected clients, and **offline-first** caching via **SwiftData**.
+A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app/), built with **Clean Architecture + TCA (The Composable Architecture)**, **`@Dependency` client injection**, and **offline-first** caching via **SwiftData**.
 
 ## Tech Stack
 
@@ -11,7 +11,7 @@ A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app
 - **SwiftData** for offline-first local caching (films catalog + film people)
 - Clean Architecture (Domain, Data, Features, Presentation, App) + TCA
 - **TCA `StackState` navigation** with SwiftUI `NavigationStack` path bindings
-- Swift Testing with `TestStore`, mocks, and constructor injection
+- Swift Testing with `TestStore`, mocks, and `withDependencies { ... }`
 
 ## API
 
@@ -125,7 +125,7 @@ flowchart TB
 | `OfflineFirstGhibliRepository` → `DefaultGhibliRepository` + cache | Same stack with `MockGhibliService` |
 | `DefaultFavoriteStorage` | `MockFavoriteStorage` |
 
-`ContentView` calls `LiveDependencies.make(...)`, injects `ghibliClient` and `favoritesClient` into `AppFeature` when creating the root `Store<AppFeature>`, and passes that store to `AppView`.
+`ContentView` calls `LiveDependencies.make(...)`, registers live clients on the root store via `Store.withDependencies { $0.ghibliClient = ...; $0.favoritesClient = ... }`, and passes that store to `AppView`. Reducers read clients with `@Dependency(\.ghibliClient)` / `@Dependency(\.favoritesClient)` instead of constructor parameters.
 
 ### Offline-first data flow
 
@@ -211,7 +211,7 @@ flowchart TB
 1. **`AppFeature`** — owns shared `favoriteIDs`, coordinates tab child features, loads favorites on appear, persists favorite toggles.
 2. **`AppView`** — owns the `TabView` and scopes child stores (`films`, `favorites`, `search`, `settings`).
 3. **`FilmTabNavigation.Path`** — shared `@Reducer` enum (`.filmDetail`, `.personDetail`) composed into each tab's `StackState`.
-4. **Tab features** — own `path: StackState<FilmTabNavigation.State>()` and compose `FilmTabNavigation(ghibliClient:)` via `.forEach(\.path, action: \.path)`.
+4. **Tab features** — own `path: StackState<FilmTabNavigation.State>()` and compose `FilmTabNavigation()` via `.forEach(\.path, action: \.path)`.
 5. **Views** — one `NavigationStack` per tab, bound with `$store.scope(state: \.path, action: \.path)`; destinations use `switch store.case`.
 
 #### Adding a new screen to the tab navigation stack
@@ -326,7 +326,7 @@ Unit tests live in `GhibliSwiftUIAppTests/` and are split **by layer**, each moc
 
 | Layer | Test location | Mock boundary |
 |-------|---------------|---------------|
-| **Features** | `Features/` | `MockClients` via constructor injection into reducers (`TestStore`) |
+| **Features** | `Features/` | `MockClients` via `TestStore.withDependencies { $0.ghibliClient = ... }` |
 | **Repositories** | `Repositories/` | Services, cache store, storage, remote repository |
 | **Services** | `Services/` | `URLSession` via `MockURLProtocol` |
 

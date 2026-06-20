@@ -119,6 +119,10 @@ So: tap → `.filmTapped(film)` action goes into `FilmsFeature`.
 
 ```swift
 // TCA: Reduce = the function that handles every Action and returns an Effect.
+// TCA: @Dependency reads GhibliClient from the store's dependency context
+//      (registered in ContentView via Store.withDependencies { $0.ghibliClient = ... }).
+@Dependency(\.ghibliClient) var ghibliClient
+
 var body: some Reducer<State, Action> {
     Reduce { state, action in
         switch action {
@@ -142,7 +146,7 @@ var body: some Reducer<State, Action> {
     // TCA: .forEach = for EACH item in state.path, run the child reducer FilmTabNavigation.
     //      This wires detail/person reducers to stack items.
     .forEach(\.path, action: \.path) {
-        FilmTabNavigation(ghibliClient: ghibliClient)
+        FilmTabNavigation()
     }
 }
 ```
@@ -173,10 +177,10 @@ var body: some Reducer<State, Action> {
     Reduce { _, _ in .none }
 
         // TCA: ifCaseLet = "only run FilmDetailFeature when state is .filmDetail(...)"
-        .ifCaseLet(/State.filmDetail, action: /Action.filmDetail) {
-            FilmDetailFeature(ghibliClient: ghibliClient)
+        .ifCaseLet(\State.Cases.filmDetail, action: \Action.Cases.filmDetail) {
+            FilmDetailFeature()
         }
-        .ifCaseLet(/State.personDetail, action: /Action.personDetail) {
+        .ifCaseLet(\State.Cases.personDetail, action: \Action.Cases.personDetail) {
             PersonDetailFeature()
         }
 }
@@ -286,6 +290,8 @@ enum Action: Equatable {
     case personTapped(Person)
 }
 
+@Dependency(\.ghibliClient) var ghibliClient
+
 case .onAppear:
     guard !state.peopleState.isLoading else { return .none }
     if case .idle = state.peopleState {
@@ -294,9 +300,8 @@ case .onAppear:
     }
     let film = state.film
 
-    // TCA: .run = async EFFECT (side effect). Runs outside the reducer synchronously.
-    //      [ghibliClient] = capture dependency for the async closure.
-    return .run { [ghibliClient] send in
+    // TCA: .run = async EFFECT (side effect). Reads ghibliClient from @Dependency.
+    return .run { send in
         do {
             let people = try await ghibliClient.fetchPeople(film)
 

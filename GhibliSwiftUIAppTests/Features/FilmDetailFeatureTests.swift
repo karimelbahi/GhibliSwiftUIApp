@@ -16,7 +16,9 @@ struct FilmDetailFeatureTests {
         let store = TestStore(
             initialState: FilmDetailFeature.State(film: TestFixtures.filmWithPeople)
         ) {
-            FilmDetailFeature(ghibliClient: makeMockGhibliClient())
+            FilmDetailFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient()
         }
 
         await store.send(.onAppear) {
@@ -33,11 +35,11 @@ struct FilmDetailFeatureTests {
         let store = TestStore(
             initialState: FilmDetailFeature.State(film: TestFixtures.filmWithPeople)
         ) {
-            FilmDetailFeature(
-                ghibliClient: makeMockGhibliClient(
-                    shouldThrowOnFetchPeople: true,
-                    fetchPeopleError: DomainError.networkUnavailable
-                )
+            FilmDetailFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient(
+                shouldThrowOnFetchPeople: true,
+                fetchPeopleError: DomainError.networkUnavailable
             )
         }
 

@@ -16,12 +16,12 @@ struct AppFeatureTests {
         let favoritesState = MockFavoritesClientState()
 
         let store = TestStore(initialState: AppFeature.State()) {
-            AppFeature(
-                ghibliClient: makeMockGhibliClient(),
-                favoritesClient: makeMockFavoritesClient(
-                    initialFavoriteIDs: ["film-1"],
-                    state: favoritesState
-                )
+            AppFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient()
+            $0.favoritesClient = makeMockFavoritesClient(
+                initialFavoriteIDs: ["film-1"],
+                state: favoritesState
             )
         }
         store.exhaustivity = .off
@@ -43,10 +43,10 @@ struct AppFeatureTests {
         let store = TestStore(
             initialState: AppFeature.State(favoriteIDs: [])
         ) {
-            AppFeature(
-                ghibliClient: makeMockGhibliClient(),
-                favoritesClient: makeMockFavoritesClient(state: favoritesState)
-            )
+            AppFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient()
+            $0.favoritesClient = makeMockFavoritesClient(state: favoritesState)
         }
 
         await store.send(.toggleFavorite("film-1")) {

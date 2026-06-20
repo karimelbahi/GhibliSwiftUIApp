@@ -13,7 +13,9 @@ struct FilmsFeatureTests {
 
     @Test func initialStateIsIdle() async {
         let store = TestStore(initialState: FilmsFeature.State()) {
-            FilmsFeature(ghibliClient: makeMockGhibliClient())
+            FilmsFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient()
         }
 
         #expect(store.state.filmsState == .idle)
@@ -23,7 +25,9 @@ struct FilmsFeatureTests {
     func fetchLoadsFilms() async {
         let clientState = MockGhibliClientState()
         let store = TestStore(initialState: FilmsFeature.State()) {
-            FilmsFeature(ghibliClient: makeMockGhibliClient(state: clientState))
+            FilmsFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient(state: clientState)
         }
 
         await store.send(.onAppear) {
@@ -41,7 +45,9 @@ struct FilmsFeatureTests {
         let store = TestStore(
             initialState: FilmsFeature.State(filmsState: .loaded(TestFixtures.films))
         ) {
-            FilmsFeature(ghibliClient: makeMockGhibliClient())
+            FilmsFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient()
         }
 
         await store.send(.filmTapped(film)) {
@@ -52,11 +58,11 @@ struct FilmsFeatureTests {
     @Test("Fetch sets domain error message")
     func fetchSetsDomainError() async {
         let store = TestStore(initialState: FilmsFeature.State()) {
-            FilmsFeature(
-                ghibliClient: makeMockGhibliClient(
-                    shouldThrowOnFetchFilms: true,
-                    fetchFilmsError: DomainError.networkUnavailable
-                )
+            FilmsFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient(
+                shouldThrowOnFetchFilms: true,
+                fetchFilmsError: DomainError.networkUnavailable
             )
         }
 

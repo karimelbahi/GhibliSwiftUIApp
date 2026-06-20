@@ -34,16 +34,8 @@ struct SearchFeature: Reducer {
         case path(StackActionOf<FilmTabNavigation>)
     }
 
-    let ghibliClient: GhibliClient
-    let clock: any Clock<Duration>
-
-    init(
-        ghibliClient: GhibliClient,
-        clock: any Clock<Duration> = ContinuousClock()
-    ) {
-        self.ghibliClient = ghibliClient
-        self.clock = clock
-    }
+    @Dependency(\.ghibliClient) var ghibliClient
+    @Dependency(\.continuousClock) var clock
 
     // TCA: CancelID identifies the debounced search effect for .cancel / .cancellable.
     private enum CancelID { case search }
@@ -63,7 +55,7 @@ struct SearchFeature: Reducer {
                 state.searchState = .loading
 
                 // TCA: .run = debounce 500ms, then call search API.
-                return .run { [ghibliClient, clock] send in
+                return .run { send in
                     try await clock.sleep(for: .milliseconds(500))
                     try Task.checkCancellation()
                     do {
@@ -108,7 +100,7 @@ struct SearchFeature: Reducer {
         }
         // TCA: .forEach = run FilmTabNavigation reducer for each item in state.path.
         .forEach(\.path, action: \.path) {
-            FilmTabNavigation(ghibliClient: ghibliClient)
+            FilmTabNavigation()
         }
     }
 }

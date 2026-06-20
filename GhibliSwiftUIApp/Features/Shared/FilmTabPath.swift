@@ -8,12 +8,6 @@ import Foundation
 // TCA: Shared navigation reducer — describes every screen that can be pushed on a tab stack.
 struct FilmTabNavigation: Reducer {
 
-    let ghibliClient: GhibliClient
-
-    init(ghibliClient: GhibliClient) {
-        self.ghibliClient = ghibliClient
-    }
-
     // TCA: @Reducer enum Path = one enum for all destination types on the stack.
     @Reducer
     enum Path {
@@ -31,7 +25,7 @@ struct FilmTabNavigation: Reducer {
         Reduce { _, _ in .none }
             // TCA: CaseKeyPath syntax for @Reducer enum cases (replaces deprecated /State.case).
             .ifCaseLet(\State.Cases.filmDetail, action: \Action.Cases.filmDetail) {
-                FilmDetailFeature(ghibliClient: ghibliClient)
+                FilmDetailFeature()
             }
             // TCA: ifCaseLet = run PersonDetailFeature when stack item is .personDetail(...).
             .ifCaseLet(\State.Cases.personDetail, action: \Action.Cases.personDetail) {

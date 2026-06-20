@@ -6,20 +6,21 @@ import ComposableArchitecture
 import SwiftUI
 
 #Preview("Films") {
-    let (ghibliClient, _) = LiveDependencies.makePreview()
     FilmsScreen(
         store: Store(
             initialState: FilmsFeature.State(
                 filmsState: .loaded([PreviewData.totoro, PreviewData.castleInTheSky])
             )
         ) {
-            FilmsFeature(ghibliClient: ghibliClient)
+            FilmsFeature()
+        } withDependencies: {
+            let (ghibliClient, _) = LiveDependencies.makePreview()
+            $0.ghibliClient = ghibliClient
         }
     )
 }
 
 #Preview("Film Detail") {
-    let (ghibliClient, _) = LiveDependencies.makePreview()
     NavigationStack {
         FilmDetailScreen(
             store: Store(
@@ -28,7 +29,10 @@ import SwiftUI
                     peopleState: .loaded([PreviewData.samplePerson])
                 )
             ) {
-                FilmDetailFeature(ghibliClient: ghibliClient)
+                FilmDetailFeature()
+            } withDependencies: {
+                let (ghibliClient, _) = LiveDependencies.makePreview()
+                $0.ghibliClient = ghibliClient
             },
             isFavorite: true,
             onFavoriteTapped: {}

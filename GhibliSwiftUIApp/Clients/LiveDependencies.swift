@@ -2,6 +2,7 @@
 //  LiveDependencies.swift
 //
 
+import ComposableArchitecture
 import Foundation
 
 enum LiveDependencies {
@@ -38,5 +39,28 @@ enum LiveDependencies {
             GhibliClient.live(repository: ghibliRepository),
             FavoritesClient.live(repository: favoritesRepository)
         )
+    }
+
+    /// Wires live clients into TCA's dependency context for a root store or preview.
+    @MainActor
+    static func configure(
+        cacheContainer: GhibliCacheContainer? = nil,
+        useMockService: Bool = false,
+        _ update: (inout DependencyValues) -> Void = { _ in }
+    ) -> DependencyValues {
+        var dependencies = DependencyValues()
+        let (ghibliClient, favoritesClient): (GhibliClient, FavoritesClient)
+        if let cacheContainer {
+            (ghibliClient, favoritesClient) = make(
+                cacheContainer: cacheContainer,
+                useMockService: useMockService
+            )
+        } else {
+            (ghibliClient, favoritesClient) = makePreview()
+        }
+        dependencies.ghibliClient = ghibliClient
+        dependencies.favoritesClient = favoritesClient
+        update(&dependencies)
+        return dependencies
     }
 }

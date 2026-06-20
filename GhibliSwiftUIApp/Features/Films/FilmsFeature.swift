@@ -33,11 +33,7 @@ struct FilmsFeature: Reducer {
         case path(StackActionOf<FilmTabNavigation>)
     }
 
-    let ghibliClient: GhibliClient
-
-    init(ghibliClient: GhibliClient) {
-        self.ghibliClient = ghibliClient
-    }
+    @Dependency(\.ghibliClient) var ghibliClient
 
     var body: some Reducer<State, Action> {
         // TCA: Reduce = synchronous handler; return an Effect for async/side-effect work.
@@ -52,7 +48,7 @@ struct FilmsFeature: Reducer {
                     state.filmsState = .loading
                 }
                 // TCA: .run = async Effect; fetches data then sends a new Action back to the store.
-                return .run { [ghibliClient] send in
+                return .run { send in
                     do {
                         let films = try await ghibliClient.fetchFilms()
                         await send(.fetchFilmsResponse(.success(films)))
@@ -92,7 +88,7 @@ struct FilmsFeature: Reducer {
         }
         // TCA: .forEach = run FilmTabNavigation reducer for each item in state.path.
         .forEach(\.path, action: \.path) {
-            FilmTabNavigation(ghibliClient: ghibliClient)
+            FilmTabNavigation()
         }
     }
 }

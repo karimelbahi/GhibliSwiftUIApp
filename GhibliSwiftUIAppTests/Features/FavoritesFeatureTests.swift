@@ -14,7 +14,9 @@ struct FavoritesFeatureTests {
     @Test("Fetch loads films successfully")
     func fetchLoadsFilms() async {
         let store = TestStore(initialState: FavoritesFeature.State()) {
-            FavoritesFeature(ghibliClient: makeMockGhibliClient())
+            FavoritesFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient()
         }
 
         await store.send(.onAppear) {
@@ -29,11 +31,11 @@ struct FavoritesFeatureTests {
     @Test("Fetch sets domain error message")
     func fetchSetsDomainError() async {
         let store = TestStore(initialState: FavoritesFeature.State()) {
-            FavoritesFeature(
-                ghibliClient: makeMockGhibliClient(
-                    shouldThrowOnFetchFilms: true,
-                    fetchFilmsError: DomainError.networkUnavailable
-                )
+            FavoritesFeature()
+        } withDependencies: {
+            $0.ghibliClient = makeMockGhibliClient(
+                shouldThrowOnFetchFilms: true,
+                fetchFilmsError: DomainError.networkUnavailable
             )
         }
 

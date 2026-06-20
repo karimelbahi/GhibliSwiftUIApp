@@ -129,6 +129,9 @@ So: tap → `.filmTapped(film)` action goes into `FavoritesFeature`.
 
 ```swift
 // TCA: Reduce = handles every Action and returns an Effect.
+// TCA: @Dependency(\.ghibliClient) — see FILMS_NAVIGATION_TCA_GUIDE.md Step 4.
+@Dependency(\.ghibliClient) var ghibliClient
+
 var body: some Reducer<State, Action> {
     Reduce { state, action in
         switch action {
@@ -147,7 +150,7 @@ var body: some Reducer<State, Action> {
 
     // TCA: .forEach = run FilmTabNavigation reducer for each item in state.path.
     .forEach(\.path, action: \.path) {
-        FilmTabNavigation(ghibliClient: ghibliClient)
+        FilmTabNavigation()
     }
 }
 ```
