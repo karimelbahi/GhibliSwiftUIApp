@@ -229,3 +229,4 @@ After `.filmDetail` is appended, the flow is **identical** to the Movies tab:
 | Detail → person | [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) |
 | Favorites list → detail | [FAVORITES_NAVIGATION_TCA_GUIDE.md](FAVORITES_NAVIGATION_TCA_GUIDE.md) |
 | Search results → detail | [SEARCH_NAVIGATION_TCA_GUIDE.md](SEARCH_NAVIGATION_TCA_GUIDE.md) |
+| Settings form + bindings | [SETTINGS_TCA_GUIDE.md](SETTINGS_TCA_GUIDE.md) |

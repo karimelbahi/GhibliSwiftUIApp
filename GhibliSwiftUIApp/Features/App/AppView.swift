@@ -32,6 +32,8 @@ struct AppView: View {
 
             Tab("Settings", systemImage: "gear") {
                 SettingsScreen(
+                    // TCA: Scope = slice root store to SettingsFeature (form state, no path stack).
+                    //      See SETTINGS_TCA_GUIDE.md for bindings + persistence.
                     store: store.scope(state: \.settings, action: \.settings)
                 )
             }

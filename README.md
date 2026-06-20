@@ -185,6 +185,8 @@ For favorites list → film detail, see **[FAVORITES_NAVIGATION_TCA_GUIDE.md](FA
 
 For search results → film detail, see **[SEARCH_NAVIGATION_TCA_GUIDE.md](SEARCH_NAVIGATION_TCA_GUIDE.md)**.
 
+For the Settings tab (form bindings, UserDefaults, no stack navigation), see **[SETTINGS_TCA_GUIDE.md](SETTINGS_TCA_GUIDE.md)**.
+
 ```mermaid
 flowchart TB
     AppView --> FilmsScreen

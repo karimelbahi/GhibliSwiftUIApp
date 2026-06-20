@@ -7,6 +7,7 @@ import SwiftUI
 
 struct SettingsScreen: View {
 
+    // TCA: @Bindable store = read SettingsFeature state; bindings send Actions on change.
     @Bindable var store: StoreOf<SettingsFeature>
 
     init(store: StoreOf<SettingsFeature>) {
@@ -14,6 +15,8 @@ struct SettingsScreen: View {
     }
 
     var body: some View {
+        // TCA: Plain NavigationStack for title only — NOT path-based TCA navigation.
+        //      See SETTINGS_TCA_GUIDE.md (no StackState on this tab).
         NavigationStack {
             Form {
                 Section {
@@ -48,6 +51,7 @@ struct SettingsScreen: View {
 
                 Section {
                     Button(role: .destructive) {
+                        // TCA: store.send = dispatch Action; reducer resets state + UserDefaults.
                         store.send(.resetDefaults)
                     } label: {
                         Text("Reset to Defaults")
@@ -56,11 +60,13 @@ struct SettingsScreen: View {
             }
             .navigationTitle("Settings")
             .task {
+                // TCA: Load persisted settings into reducer state on appear.
                 store.send(.onAppear)
             }
         }
     }
 
+    // TCA: Manual Binding — get from store, set sends Action (not @BindingState).
     private var appearanceThemeBinding: Binding<AppearanceTheme> {
         Binding(
             get: { store.appearanceTheme },

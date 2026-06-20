@@ -5,8 +5,10 @@
 import ComposableArchitecture
 import Foundation
 
+// TCA: Settings tab reducer — form state + UserDefaults persistence (no navigation stack).
 struct SettingsFeature: Reducer {
 
+    // TCA: @ObservableState = SwiftUI form controls observe these fields.
     @ObservableState
     struct State: Equatable {
         var appearanceTheme: AppearanceTheme = .system
@@ -16,6 +18,7 @@ struct SettingsFeature: Reducer {
     }
 
     enum Action: Equatable {
+        // TCA: Load persisted values when Settings screen appears.
         case onAppear
         case appearanceThemeChanged(AppearanceTheme)
         case usernameChanged(String)
@@ -28,6 +31,7 @@ struct SettingsFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                // TCA: Hydrate state from UserDefaults; no async effect.
                 state = SettingsStorage.load()
                 return .none
 
@@ -42,6 +46,7 @@ struct SettingsFeature: Reducer {
                 return .none
 
             case let .itemsPerPageChanged(itemsPerPage):
+                // TCA: Other tabs read itemsPerPage via AppView store.settings.itemsPerPage.
                 state.itemsPerPage = itemsPerPage
                 SettingsStorage.save(state)
                 return .none
