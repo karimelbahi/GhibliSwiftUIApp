@@ -18,6 +18,18 @@ Here is the full film list → detail flow, file by file, with TCA notes on each
 8. `store.receive(.fetchPeopleResponse)`
 9. UI updates characters
 
+```mermaid
+flowchart LR
+    A[Tap film row] --> B["store.send(.filmTapped(film))"]
+    B --> C["Reducer updates state.path"]
+    C --> D["NavigationStack reads path"]
+    D --> E["Shows FilmDetailScreen"]
+    E --> F["store.send(.onAppear)"]
+    F --> G[".run effect fetches people"]
+    G --> H["store.receive(.fetchPeopleResponse)"]
+    H --> I["UI updates characters"]
+```
+
 **TCA rule of thumb:**  
 View sends an **Action** → **Reducer** updates **State** → View re-renders.
 

@@ -18,6 +18,17 @@ Here is the full film detail → person detail flow, file by file, with TCA note
 8. Shows `PersonDetailScreen`
 9. UI reads `store.person` from `PersonDetailFeature` state
 
+```mermaid
+flowchart LR
+    A[Tap character row] --> B["store.send(.personTapped(person))"]
+    B --> C["FilmDetailFeature returns .none"]
+    C --> D["Action bubbles via .path"]
+    D --> E["Parent appends .personDetail"]
+    E --> F["NavigationStack reads path"]
+    F --> G["Shows PersonDetailScreen"]
+    G --> H["UI reads store.person"]
+```
+
 **TCA rule of thumb:**  
 View sends an **Action** → **Reducer** updates **State** → View re-renders.
 

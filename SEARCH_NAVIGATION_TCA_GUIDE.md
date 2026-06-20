@@ -22,6 +22,18 @@ For detail → person on this tab, see [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](P
 8. `.run` effect fetches people
 9. UI updates characters
 
+```mermaid
+flowchart LR
+    A[Tap search result] --> B["store.send(.filmTapped(film))"]
+    B --> C["SearchFeature updates state.path"]
+    C --> D["NavigationStack reads path"]
+    D --> E["Shows FilmDetailScreen"]
+    E --> F["store.send(.onAppear)"]
+    F --> G[".run effect fetches people"]
+    G --> H["store.receive(.fetchPeopleResponse)"]
+    H --> I["UI updates characters"]
+```
+
 **TCA rule of thumb:**  
 View sends an **Action** → **Reducer** updates **State** → View re-renders.
 

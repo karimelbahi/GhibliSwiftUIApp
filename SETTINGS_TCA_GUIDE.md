@@ -15,6 +15,15 @@ Settings does **not** push child screens. There is no `StackState`, no `path.app
 5. Returns `.none` (no async effect)
 6. SwiftUI re-renders from `@ObservableState`
 
+```mermaid
+flowchart LR
+    A[Change form control] --> B["store.send(.someAction)"]
+    B --> C["Reducer updates state"]
+    C --> D["SettingsStorage.save"]
+    D --> E["return .none"]
+    E --> F["UI re-renders"]
+```
+
 **TCA rule of thumb:**  
 View sends an **Action** → **Reducer** updates **State** → View re-renders.
 
