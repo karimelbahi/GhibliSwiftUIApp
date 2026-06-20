@@ -212,7 +212,7 @@ All tab screens share a single path type (`FilmTabNavigation.Path`). To add a ne
 |------|--------|---------|
 | 1 | Add a case to `FilmTabNavigation.Path` | `case newScreen(NewFeature)` |
 | 2 | Create the feature + view | `NewFeature.swift`, `NewScreen.swift` |
-| 3 | Wire the child reducer in `FilmTabNavigation.body` | `.ifCaseLet(/State.newScreen, action: /Action.newScreen) { NewFeature() }` |
+| 3 | Wire the child reducer in `FilmTabNavigation.body` | `.ifCaseLet(\State.Cases.newScreen, action: \Action.Cases.newScreen) { NewFeature() }` |
 | 4 | Handle the trigger action in the tab feature's reducer | `case .somethingTapped: state.path.append(.newScreen(NewFeature.State(...))); return .none` |
 | 5 | Render the destination in `FilmTabPathDestinationView` | Add `case let .newScreen(store):` to the `switch store.case` block |
 

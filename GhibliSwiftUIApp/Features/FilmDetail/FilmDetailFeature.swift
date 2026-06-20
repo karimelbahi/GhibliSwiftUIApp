@@ -7,6 +7,7 @@ import Foundation
 
 struct FilmDetailFeature: Reducer {
 
+    // TCA: State for one detail screen on the navigation stack.
     @ObservableState
     struct State: Equatable {
         var film: Film
@@ -14,8 +15,11 @@ struct FilmDetailFeature: Reducer {
     }
 
     enum Action: Equatable {
+        // TCA: Sent when detail screen appears — triggers .run effect to fetch people.
         case onAppear
+        // TCA: Sent by .run effect when network call finishes (success or failure).
         case fetchPeopleResponse(Result<[Person], DomainError>)
+        // TCA: User tapped a character — bubbles up via .path to parent for navigation.
         case personTapped(Person)
     }
 
@@ -31,12 +35,15 @@ struct FilmDetailFeature: Reducer {
             case .onAppear:
                 guard !state.peopleState.isLoading else { return .none }
                 if case .idle = state.peopleState {
+                    // TCA: Update state immediately so UI shows loading spinner.
                     state.peopleState = .loading
                 }
                 let film = state.film
+                // TCA: .run = async Effect (network). Captures ghibliClient for the task.
                 return .run { [ghibliClient] send in
                     do {
                         let people = try await ghibliClient.fetchPeople(film)
+                        // TCA: send(...) dispatches a new Action when async work completes.
                         await send(.fetchPeopleResponse(.success(people)))
                     } catch let error as DomainError {
                         await send(.fetchPeopleResponse(.failure(error)))
@@ -46,6 +53,7 @@ struct FilmDetailFeature: Reducer {
                 }
 
             case let .fetchPeopleResponse(.success(people)):
+                // TCA: Effect result applied to state — UI shows character list.
                 state.peopleState = .loaded(people)
                 return .none
 
@@ -54,6 +62,7 @@ struct FilmDetailFeature: Reducer {
                 return .none
 
             case .personTapped:
+                // TCA: No local state change; parent FilmsFeature handles navigation via .path.
                 return .none
             }
         }

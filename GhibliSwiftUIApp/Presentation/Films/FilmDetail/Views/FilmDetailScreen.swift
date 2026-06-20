@@ -7,6 +7,7 @@ import SwiftUI
 
 struct FilmDetailScreen: View {
 
+    // TCA: Store scoped to FilmDetailFeature — one film + its people loading state.
     @Bindable var store: StoreOf<FilmDetailFeature>
     let isFavorite: Bool
     let onFavoriteTapped: () -> Void
@@ -24,6 +25,7 @@ struct FilmDetailScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 7) {
+                // TCA: Read state from store — re-renders when reducer updates state.
                 FilmImageView(urlPath: store.film.bannerImage)
                     .frame(height: 300)
                     .containerRelativeFrame(.horizontal)
@@ -60,6 +62,7 @@ struct FilmDetailScreen: View {
             FavoriteButton(isFavorite: isFavorite, action: onFavoriteTapped)
         }
         .task(id: store.film.id) {
+            // TCA: Screen appeared — send Action to start loading characters (.run effect in reducer).
             store.send(.onAppear)
         }
     }
@@ -93,6 +96,7 @@ fileprivate struct CharacterSectionView: View {
                 Text("Characters")
                     .font(.headline)
 
+                // TCA: Observe peopleState from store (idle → loading → loaded/error).
                 switch store.peopleState {
                 case .idle:
                     EmptyView()
@@ -109,6 +113,7 @@ fileprivate struct CharacterSectionView: View {
 
                     ForEach(people) { person in
                         Button {
+                            // TCA: Child sends intent; parent FilmsFeature pushes .personDetail onto path.
                             store.send(.personTapped(person))
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {

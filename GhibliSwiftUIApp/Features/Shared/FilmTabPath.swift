@@ -5,6 +5,7 @@
 import ComposableArchitecture
 import Foundation
 
+// TCA: Shared navigation reducer — describes every screen that can be pushed on a tab stack.
 struct FilmTabNavigation: Reducer {
 
     let ghibliClient: GhibliClient
@@ -13,21 +14,25 @@ struct FilmTabNavigation: Reducer {
         self.ghibliClient = ghibliClient
     }
 
+    // TCA: @Reducer enum Path = one enum for all destination types on the stack.
     @Reducer
     enum Path {
         case filmDetail(FilmDetailFeature)
         case personDetail(PersonDetailFeature)
     }
 
+    // TCA: Path.State / Path.Action are synthesized from the enum cases above.
     typealias State = Path.State
     typealias Action = Path.Action
 
     var body: some Reducer<State, Action> {
+        // TCA: Parent path reducer does no work itself; child reducers handle each case.
         Reduce { _, _ in .none }
-            .ifCaseLet(/State.filmDetail, action: /Action.filmDetail) {
+            // TCA: CaseKeyPath syntax for @Reducer enum cases (replaces deprecated /State.case).
+            .ifCaseLet(\State.Cases.filmDetail, action: \Action.Cases.filmDetail) {
                 FilmDetailFeature(ghibliClient: ghibliClient)
             }
-            .ifCaseLet(/State.personDetail, action: /Action.personDetail) {
+            .ifCaseLet(\State.Cases.personDetail, action: \Action.Cases.personDetail) {
                 PersonDetailFeature()
             }
     }

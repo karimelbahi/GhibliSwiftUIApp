@@ -7,12 +7,15 @@ import SwiftUI
 
 struct AppView: View {
 
+    // TCA: Root store holds all app state (tabs, favorites, settings).
     let store: StoreOf<AppFeature>
 
     var body: some View {
         TabView {
             Tab("Movies", systemImage: "movieclapper") {
                 FilmsScreen(
+                    // TCA: Scope = slice the root store down to FilmsFeature only.
+                    //      Reads AppFeature.State.films, sends actions as AppFeature.Action.films(...).
                     store: store.scope(state: \.films, action: \.films),
                     itemsPerPage: store.settings.itemsPerPage
                 )
@@ -39,6 +42,7 @@ struct AppView: View {
             }
         }
         .task {
+            // TCA: Dispatch an action into the store (starts app-level effects).
             store.send(.onAppear)
         }
         .setAppearanceTheme()

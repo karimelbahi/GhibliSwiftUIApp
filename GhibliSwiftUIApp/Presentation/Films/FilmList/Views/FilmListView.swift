@@ -9,6 +9,7 @@ struct FilmListView: View {
     let films: [Film]
     let favoriteIDs: Set<String>
     let itemsPerPage: Int
+    // TCA: Callback wired by parent to store.send(.filmTapped) — this view is not TCA-aware.
     let onFilmTapped: (Film) -> Void
     let onFavoriteTapped: (String) -> Void
 
@@ -33,6 +34,7 @@ struct FilmListView: View {
     var body: some View {
         List(displayedFilms) { film in
             Button {
+                // TCA flow starts here: parent FilmsScreen turns this into store.send(.filmTapped(film)).
                 onFilmTapped(film)
             } label: {
                 FilmRow(

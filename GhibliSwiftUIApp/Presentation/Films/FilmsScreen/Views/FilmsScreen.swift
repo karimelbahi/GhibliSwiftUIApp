@@ -7,10 +7,12 @@ import SwiftUI
 
 struct FilmsScreen: View {
 
+    // TCA: @Bindable store = read state + two-way bind navigation path to NavigationStack.
     @Bindable var store: StoreOf<FilmsFeature>
     let itemsPerPage: Int
 
     init(
+        // TCA: StoreOf<FilmsFeature> = Store scoped to this feature's State and Action.
         store: StoreOf<FilmsFeature>,
         itemsPerPage: Int = 20
     ) {
@@ -19,8 +21,11 @@ struct FilmsScreen: View {
     }
 
     var body: some View {
+        // TCA: Two-way bind NavigationStack to state.path via scoped store binding.
+        //      When path grows → push screen. When user taps Back → path shrinks.
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             Group {
+                // TCA: Read observable state from the store; UI updates when reducer changes it.
                 switch store.filmsState {
                 case .idle:
                     Text("No Films yet")
@@ -35,6 +40,7 @@ struct FilmsScreen: View {
                         films: films,
                         favoriteIDs: store.favoriteIDs,
                         itemsPerPage: itemsPerPage,
+                        // TCA: store.send = dispatch Action into FilmsFeature reducer.
                         onFilmTapped: { store.send(.filmTapped($0)) },
                         onFavoriteTapped: { store.send(.favoriteButtonTapped($0)) }
                     )
@@ -46,6 +52,7 @@ struct FilmsScreen: View {
             }
             .navigationTitle("Ghibli Movies")
         } destination: { pathStore in
+            // TCA: pathStore = scoped Store for ONE stack item (detail or person).
             FilmTabPathDestinationView(
                 store: pathStore,
                 favoriteIDs: store.favoriteIDs,
