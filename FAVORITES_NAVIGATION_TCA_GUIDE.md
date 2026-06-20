@@ -221,11 +221,11 @@ After `.filmDetail` is appended, the flow is **identical** to the Movies tab:
 
 ---
 
-## Next guides (one commit each)
+## Navigation guides (complete set)
 
-| # | Flow | File (planned) |
-|---|------|----------------|
-| ✅ | Movies list → detail | [NAVIGATION_TCA_GUIDE.md](NAVIGATION_TCA_GUIDE.md) |
-| ✅ | Detail → person | [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) |
-| ✅ | Favorites list → detail | This file |
-| ⬜ | Search results → detail | `SEARCH_NAVIGATION_TCA_GUIDE.md` |
+| Flow | Guide |
+|------|-------|
+| Movies list → detail | [NAVIGATION_TCA_GUIDE.md](NAVIGATION_TCA_GUIDE.md) |
+| Detail → person | [PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md](PERSON_DETAIL_NAVIGATION_TCA_GUIDE.md) |
+| Favorites list → detail | [FAVORITES_NAVIGATION_TCA_GUIDE.md](FAVORITES_NAVIGATION_TCA_GUIDE.md) |
+| Search results → detail | [SEARCH_NAVIGATION_TCA_GUIDE.md](SEARCH_NAVIGATION_TCA_GUIDE.md) |

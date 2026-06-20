@@ -38,6 +38,8 @@ struct AppView: View {
 
             Tab(role: .search) {
                 SearchScreen(
+                    // TCA: Scope = slice root store to SearchFeature (own path stack).
+                    //      See SEARCH_NAVIGATION_TCA_GUIDE.md for results → detail flow.
                     store: store.scope(state: \.search, action: \.search),
                     itemsPerPage: store.settings.itemsPerPage
                 )

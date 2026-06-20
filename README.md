@@ -183,6 +183,8 @@ For film detail → person detail (child intent, parent-owned stack), see **[PER
 
 For favorites list → film detail, see **[FAVORITES_NAVIGATION_TCA_GUIDE.md](FAVORITES_NAVIGATION_TCA_GUIDE.md)**.
 
+For search results → film detail, see **[SEARCH_NAVIGATION_TCA_GUIDE.md](SEARCH_NAVIGATION_TCA_GUIDE.md)**.
+
 ```mermaid
 flowchart TB
     AppView --> FilmsScreen

@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		883E94DB2FD087BD00C7EEBE /* GhibliDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D52E93D9B00026ADE6 /* GhibliDomain */; };
-		883E94DC2FD087BD00C7EEBE /* GhibliData in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D62E93D9B00026ADE6 /* GhibliData */; };
-		883E94DD2FD087BD00C7EEBE /* GhibliPresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */; };
-		883E94DE2FD087BD00C7EEBE /* GhibliDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D52E93D9B00026ADE6 /* GhibliDomain */; };
-		883E94DF2FD087BD00C7EEBE /* GhibliData in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D62E93D9B00026ADE6 /* GhibliData */; };
-		883E94E02FD087BD00C7EEBE /* GhibliPresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */; };
+		883E94DB2FD087BD00C7EEBE /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D52E93D9B00026ADE6 /* ComposableArchitecture */; };
+		883E94DE2FD087BD00C7EEBE /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D52E93D9B00026ADE6 /* ComposableArchitecture */; };
+		883E94DF2FD087BD00C7EEBE /* PerceptionCore in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D72E93D9B00026ADE6 /* PerceptionCore */; };
+		883E94E02FD087BD00C7EEBE /* PerceptionCore in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D72E93D9B00026ADE6 /* PerceptionCore */; };
+		883E94E12FD087BD00C7EEBE /* Clocks in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3D92E93D9B00026ADE6 /* Clocks */; };
+		883E94E22FD087BD00C7EEBE /* CasePaths in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3DC2E93D9B00026ADE6 /* CasePaths */; };
+		883E94E32FD087BD00C7EEBE /* CasePaths in Frameworks */ = {isa = PBXBuildFile; productRef = 17A1C3DC2E93D9B00026ADE6 /* CasePaths */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,9 +68,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				883E94DD2FD087BD00C7EEBE /* GhibliPresentation in Frameworks */,
-				883E94DC2FD087BD00C7EEBE /* GhibliData in Frameworks */,
-				883E94DB2FD087BD00C7EEBE /* GhibliDomain in Frameworks */,
+				883E94DB2FD087BD00C7EEBE /* ComposableArchitecture in Frameworks */,
+				883E94DF2FD087BD00C7EEBE /* PerceptionCore in Frameworks */,
+				883E94E22FD087BD00C7EEBE /* CasePaths in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,9 +78,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				883E94DE2FD087BD00C7EEBE /* GhibliDomain in Frameworks */,
-				883E94DF2FD087BD00C7EEBE /* GhibliData in Frameworks */,
-				883E94E02FD087BD00C7EEBE /* GhibliPresentation in Frameworks */,
+				883E94DE2FD087BD00C7EEBE /* ComposableArchitecture in Frameworks */,
+				883E94E02FD087BD00C7EEBE /* PerceptionCore in Frameworks */,
+				883E94E12FD087BD00C7EEBE /* Clocks in Frameworks */,
+				883E94E32FD087BD00C7EEBE /* CasePaths in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,9 +149,9 @@
 			);
 			name = GhibliSwiftUIApp;
 			packageProductDependencies = (
-				17A1C3D52E93D9B00026ADE6 /* GhibliDomain */,
-				17A1C3D62E93D9B00026ADE6 /* GhibliData */,
-				17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */,
+				17A1C3D52E93D9B00026ADE6 /* ComposableArchitecture */,
+				17A1C3D72E93D9B00026ADE6 /* PerceptionCore */,
+				17A1C3DC2E93D9B00026ADE6 /* CasePaths */,
 			);
 			productName = GhibliSwiftUIApp;
 			productReference = 170A28912E93D9B00026ADE6 /* GhibliSwiftUIApp.app */;
@@ -173,9 +175,10 @@
 			);
 			name = GhibliSwiftUIAppTests;
 			packageProductDependencies = (
-				17A1C3D52E93D9B00026ADE6 /* GhibliDomain */,
-				17A1C3D62E93D9B00026ADE6 /* GhibliData */,
-				17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */,
+				17A1C3D52E93D9B00026ADE6 /* ComposableArchitecture */,
+				17A1C3D72E93D9B00026ADE6 /* PerceptionCore */,
+				17A1C3D92E93D9B00026ADE6 /* Clocks */,
+				17A1C3DC2E93D9B00026ADE6 /* CasePaths */,
 			);
 			productName = GhibliSwiftUIAppTests;
 			productReference = 170A289E2E93D9B20026ADE6 /* GhibliSwiftUIAppTests.xctest */;
@@ -237,7 +240,10 @@
 			mainGroup = 170A28882E93D9B00026ADE6;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */,
+				17A1C3D42E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				17A1C3D62E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-perception" */,
+				17A1C3D82E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-clocks" */,
+				17A1C3DA2E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-case-paths" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 170A28922E93D9B00026ADE6 /* Products */;
@@ -443,6 +449,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "GhibliSwiftUIApp/Preview\\ Assets GhibliSwiftUIApp/Preview\\ Assets/SampleData.json";
 				DEVELOPMENT_TEAM = 54YLWD89Z8;
+				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -459,11 +466,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_STRICT_CONCURRENCY = targeted;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -493,11 +498,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_STRICT_CONCURRENCY = targeted;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -627,28 +630,61 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/GhibliKit;
+/* Begin XCRemoteSwiftPackageReference section */
+		17A1C3D42E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.17.0;
+			};
 		};
-/* End XCLocalSwiftPackageReference section */
+		17A1C3D62E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-perception" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-perception";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		17A1C3D82E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-clocks" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-clocks";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		17A1C3DA2E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-case-paths" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-case-paths";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		17A1C3D52E93D9B00026ADE6 /* GhibliDomain */ = {
+		17A1C3D52E93D9B00026ADE6 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */;
-			productName = GhibliDomain;
+			package = 17A1C3D42E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
-		17A1C3D62E93D9B00026ADE6 /* GhibliData */ = {
+		17A1C3D72E93D9B00026ADE6 /* PerceptionCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */;
-			productName = GhibliData;
+			package = 17A1C3D62E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-perception" */;
+			productName = PerceptionCore;
 		};
-		17A1C3D72E93D9B00026ADE6 /* GhibliPresentation */ = {
+		17A1C3D92E93D9B00026ADE6 /* Clocks */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 17A1C3D42E93D9B00026ADE6 /* XCLocalSwiftPackageReference "Packages/GhibliKit" */;
-			productName = GhibliPresentation;
+			package = 17A1C3D82E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-clocks" */;
+			productName = Clocks;
+		};
+		17A1C3DC2E93D9B00026ADE6 /* CasePaths */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17A1C3DA2E93D9B00026ADE6 /* XCRemoteSwiftPackageReference "swift-case-paths" */;
+			productName = CasePaths;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
