@@ -2,10 +2,13 @@
 //  MockClients.swift
 //  GhibliSwiftUIAppTests
 //
+//  DI layer: Test doubles — build fake GhibliClient / FavoritesClient for TestStore.withDependencies.
+//
 
 import Foundation
 @testable import GhibliSwiftUIApp
 
+// DI: Tracks how many times mock client methods were called (for assertions in tests).
 final class MockGhibliClientState: @unchecked Sendable {
     private let lock = NSLock()
     var fetchFilmsCallCount = 0
@@ -33,6 +36,7 @@ final class MockGhibliClientState: @unchecked Sendable {
     }
 }
 
+// DI: Returns a GhibliClient with fake closures — assign to $0.ghibliClient in TestStore.withDependencies.
 func makeMockGhibliClient(
     mockFilms: [Film] = TestFixtures.films,
     mockPeople: [Person] = TestFixtures.people,
@@ -47,6 +51,7 @@ func makeMockGhibliClient(
     failuresBeforeSuccess: Int = 0,
     state: MockGhibliClientState = MockGhibliClientState()
 ) -> GhibliClient {
+    // DI: Same struct type as production — reducers cannot tell mock from live client.
     GhibliClient(
         fetchFilms: {
             state.incrementFetchFilms()
@@ -81,6 +86,7 @@ func makeMockGhibliClient(
     )
 }
 
+// DI: Tracks save/load calls for favorites persistence tests.
 final class MockFavoritesClientState: @unchecked Sendable {
     private let lock = NSLock()
     var savedFavoriteIDs: Set<String> = []
@@ -102,6 +108,7 @@ final class MockFavoritesClientState: @unchecked Sendable {
     }
 }
 
+// DI: Returns fake FavoritesClient — assign to $0.favoritesClient in TestStore.withDependencies.
 func makeMockFavoritesClient(
     initialFavoriteIDs: Set<String> = [],
     state: MockFavoritesClientState = MockFavoritesClientState()

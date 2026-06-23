@@ -33,6 +33,7 @@ struct FilmsFeature: Reducer {
         case path(StackActionOf<FilmTabNavigation>)
     }
 
+    // DI: @Dependency resolves ghibliClient from Store context (set in ContentView.withDependencies).
     @Dependency(\.ghibliClient) var ghibliClient
 
     var body: some Reducer<State, Action> {
@@ -47,7 +48,7 @@ struct FilmsFeature: Reducer {
                 if case .idle = state.filmsState {
                     state.filmsState = .loading
                 }
-                // TCA: .run = async Effect; fetches data then sends a new Action back to the store.
+                // DI: .run reads ghibliClient from @Dependency — flows to OfflineFirstGhibliRepository → cache/API.
                 return .run { send in
                     do {
                         let films = try await ghibliClient.fetchFilms()
@@ -86,7 +87,7 @@ struct FilmsFeature: Reducer {
                 return .none
             }
         }
-        // TCA: .forEach = run FilmTabNavigation reducer for each item in state.path.
+        // DI: FilmTabNavigation() has no init args — FilmDetailFeature inside uses @Dependency(\.ghibliClient).
         .forEach(\.path, action: \.path) {
             FilmTabNavigation()
         }

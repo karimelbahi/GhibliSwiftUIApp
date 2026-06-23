@@ -1,11 +1,12 @@
 //
 //  FavoritesClient.swift
 //
+//  DI layer: TCA dependency type — load/save favorite film IDs (UserDefaults behind the scenes).
+//
 
 import ComposableArchitecture
 import Foundation
 
-// TCA: @DependencyClient registers this type in DependencyValues (see @Dependency(\.favoritesClient)).
 @DependencyClient
 struct FavoritesClient: Sendable {
     var loadFavoriteIDs: @Sendable () -> Set<String> = { [] }
@@ -13,6 +14,7 @@ struct FavoritesClient: Sendable {
 }
 
 extension FavoritesClient {
+    // DI: LiveDependencies wires DefaultFavoritesRepository → these two closures.
     static func live(repository: FavoritesRepository) -> FavoritesClient {
         FavoritesClient(
             loadFavoriteIDs: { repository.load() },
@@ -22,7 +24,6 @@ extension FavoritesClient {
 }
 
 extension FavoritesClient: DependencyKey {
-    // Overridden at the composition root via Store.withDependencies { ... }.
     static let liveValue = FavoritesClient()
 }
 

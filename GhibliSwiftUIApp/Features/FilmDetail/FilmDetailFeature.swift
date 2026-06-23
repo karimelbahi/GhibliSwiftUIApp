@@ -23,6 +23,7 @@ struct FilmDetailFeature: Reducer {
         case personTapped(Person)
     }
 
+    // DI: Deep stack child — still reads same ghibliClient registered at ContentView (no passing down).
     @Dependency(\.ghibliClient) var ghibliClient
 
     var body: some Reducer<State, Action> {
@@ -35,7 +36,7 @@ struct FilmDetailFeature: Reducer {
                     state.peopleState = .loading
                 }
                 let film = state.film
-                // TCA: .run = async Effect (network). Reads ghibliClient from @Dependency.
+                // DI: fetchPeople closure → repository → cache/API (wired in LiveDependencies.make).
                 return .run { send in
                     do {
                         let people = try await ghibliClient.fetchPeople(film)

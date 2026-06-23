@@ -1,6 +1,8 @@
 //
 //  ScreenPreviews.swift
 //
+//  DI layer: Preview injection — each preview Store gets its own withDependencies block.
+//
 
 import ComposableArchitecture
 import SwiftUI
@@ -12,8 +14,9 @@ import SwiftUI
                 filmsState: .loaded([PreviewData.totoro, PreviewData.castleInTheSky])
             )
         ) {
-            FilmsFeature()
+            FilmsFeature()  // DI: Reducer with @Dependency(\.ghibliClient) — must register client below.
         } withDependencies: {
+            // DI: Preview factory — mock API + NullGhibliCacheStore (no SwiftData disk writes).
             let (ghibliClient, _) = LiveDependencies.makePreview()
             $0.ghibliClient = ghibliClient
         }
@@ -32,7 +35,7 @@ import SwiftUI
                 FilmDetailFeature()
             } withDependencies: {
                 let (ghibliClient, _) = LiveDependencies.makePreview()
-                $0.ghibliClient = ghibliClient
+                $0.ghibliClient = ghibliClient  // DI: Needed if preview triggers .onAppear / fetchPeople.
             },
             isFavorite: true,
             onFavoriteTapped: {}
@@ -46,7 +49,7 @@ import SwiftUI
             store: Store(
                 initialState: PersonDetailFeature.State(person: PreviewData.samplePerson)
             ) {
-                PersonDetailFeature()
+                PersonDetailFeature()  // DI: No @Dependency — no withDependencies required.
             }
         )
     }

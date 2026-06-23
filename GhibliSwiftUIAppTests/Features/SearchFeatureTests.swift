@@ -20,6 +20,7 @@ struct SearchFeatureTests {
             SearchFeature()
         } withDependencies: {
             $0.ghibliClient = makeMockGhibliClient()
+            // DI: ImmediateClock skips real 500 ms debounce — test runs instantly.
             $0.continuousClock = ImmediateClock()
         }
 
@@ -36,7 +37,7 @@ struct SearchFeatureTests {
             SearchFeature()
         } withDependencies: {
             $0.ghibliClient = makeMockGhibliClient(state: clientState)
-            $0.continuousClock = ImmediateClock()
+            $0.continuousClock = ImmediateClock()  // DI: Override TCA built-in clock for deterministic tests.
         }
 
         await store.send(.searchTextChanged("Totoro")) {

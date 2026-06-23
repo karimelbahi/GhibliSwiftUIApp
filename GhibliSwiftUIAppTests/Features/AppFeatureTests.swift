@@ -16,9 +16,9 @@ struct AppFeatureTests {
         let favoritesState = MockFavoritesClientState()
 
         let store = TestStore(initialState: AppFeature.State()) {
-            AppFeature()
+            AppFeature()  // DI: Uses @Dependency(\.favoritesClient) for loadFavoriteIDs().
         } withDependencies: {
-            $0.ghibliClient = makeMockGhibliClient()
+            $0.ghibliClient = makeMockGhibliClient()  // DI: Child tab reducers need ghibliClient when .onAppear fans out.
             $0.favoritesClient = makeMockFavoritesClient(
                 initialFavoriteIDs: ["film-1"],
                 state: favoritesState
@@ -46,7 +46,7 @@ struct AppFeatureTests {
             AppFeature()
         } withDependencies: {
             $0.ghibliClient = makeMockGhibliClient()
-            $0.favoritesClient = makeMockFavoritesClient(state: favoritesState)
+            $0.favoritesClient = makeMockFavoritesClient(state: favoritesState)  // DI: saveFavoriteIDs writes to favoritesState.
         }
 
         await store.send(.toggleFavorite("film-1")) {

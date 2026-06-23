@@ -1,33 +1,30 @@
 //
 //  FilmTabPath.swift
 //
+//  DI layer: Navigation composer — no @Dependency here; children read dependencies themselves.
+//
 
 import ComposableArchitecture
 import Foundation
 
-// TCA: Shared navigation reducer — describes every screen that can be pushed on a tab stack.
 struct FilmTabNavigation: Reducer {
 
-    // TCA: @Reducer enum Path = one enum for all destination types on the stack.
     @Reducer
     enum Path {
-        case filmDetail(FilmDetailFeature)
-        // TCA: Second stack destination — pushed when parent handles .personTapped from detail.
-        case personDetail(PersonDetailFeature)
+        case filmDetail(FilmDetailFeature)   // DI: Uses @Dependency(\.ghibliClient) internally.
+        case personDetail(PersonDetailFeature) // DI: No dependencies — display-only reducer.
     }
 
-    // TCA: Path.State / Path.Action are synthesized from the enum cases above.
     typealias State = Path.State
     typealias Action = Path.Action
 
     var body: some Reducer<State, Action> {
-        // TCA: Parent path reducer does no work itself; child reducers handle each case.
         Reduce { _, _ in .none }
-            // TCA: CaseKeyPath syntax for @Reducer enum cases (replaces deprecated /State.case).
+            // DI: FilmDetailFeature() — no ghibliClient arg; inherits Store's DependencyValues.
             .ifCaseLet(\State.Cases.filmDetail, action: \Action.Cases.filmDetail) {
                 FilmDetailFeature()
             }
-            // TCA: ifCaseLet = run PersonDetailFeature when stack item is .personDetail(...).
+            // DI: PersonDetailFeature has no @Dependency properties.
             .ifCaseLet(\State.Cases.personDetail, action: \Action.Cases.personDetail) {
                 PersonDetailFeature()
             }

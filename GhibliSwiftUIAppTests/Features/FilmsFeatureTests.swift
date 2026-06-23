@@ -12,10 +12,11 @@ import Testing
 struct FilmsFeatureTests {
 
     @Test func initialStateIsIdle() async {
+        // DI: TestStore mirrors ContentView — reducer + withDependencies override ghibliClient.
         let store = TestStore(initialState: FilmsFeature.State()) {
-            FilmsFeature()
+            FilmsFeature()  // DI: No init args — reads @Dependency(\.ghibliClient).
         } withDependencies: {
-            $0.ghibliClient = makeMockGhibliClient()
+            $0.ghibliClient = makeMockGhibliClient()  // DI: Replaces live client for this test only.
         }
 
         #expect(store.state.filmsState == .idle)
@@ -47,7 +48,7 @@ struct FilmsFeatureTests {
         ) {
             FilmsFeature()
         } withDependencies: {
-            $0.ghibliClient = makeMockGhibliClient()
+            $0.ghibliClient = makeMockGhibliClient()  // DI: Navigation test — client unused but required for store setup.
         }
 
         await store.send(.filmTapped(film)) {
@@ -60,6 +61,7 @@ struct FilmsFeatureTests {
         let store = TestStore(initialState: FilmsFeature.State()) {
             FilmsFeature()
         } withDependencies: {
+            // DI: Configure mock to throw — tests error path without real network.
             $0.ghibliClient = makeMockGhibliClient(
                 shouldThrowOnFetchFilms: true,
                 fetchFilmsError: DomainError.networkUnavailable

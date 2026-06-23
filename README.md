@@ -11,7 +11,7 @@ A SwiftUI reference app for the [Studio Ghibli API](https://ghibliapi.vercel.app
 - **SwiftData** for offline-first local caching (films catalog + film people)
 - Clean Architecture (Domain, Data, Features, Presentation, App) + TCA
 - **TCA `StackState` navigation** with SwiftUI `NavigationStack` path bindings
-- Swift Testing with `TestStore`, mocks, and `withDependencies { ... }`
+- Swift Testing with `TestStore`, mocks, and `withDependencies { ... }` — see **[TCA_DEPENDENCY_INJECTION_GUIDE.md](TCA_DEPENDENCY_INJECTION_GUIDE.md)**
 
 ## API
 
@@ -126,6 +126,9 @@ flowchart TB
 | `DefaultFavoriteStorage` | `MockFavoriteStorage` |
 
 `ContentView` calls `LiveDependencies.make(...)`, registers live clients on the root store via `Store.withDependencies { $0.ghibliClient = ...; $0.favoritesClient = ... }`, and passes that store to `AppView`. Reducers read clients with `@Dependency(\.ghibliClient)` / `@Dependency(\.favoritesClient)` instead of constructor parameters.
+
+For a full walkthrough of this pattern (diagrams, testing, file map), see **[TCA_DEPENDENCY_INJECTION_GUIDE.md](TCA_DEPENDENCY_INJECTION_GUIDE.md)**.  
+For line-by-line `// DI:` comments in source, open the files listed in that guide's "Related files" section.
 
 ### Offline-first data flow
 

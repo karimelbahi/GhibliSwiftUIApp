@@ -34,7 +34,9 @@ struct SearchFeature: Reducer {
         case path(StackActionOf<FilmTabNavigation>)
     }
 
+    // DI: App client — search API / offline filter via GhibliClient.searchFilms.
     @Dependency(\.ghibliClient) var ghibliClient
+    // DI: Built-in TCA dependency — override with ImmediateClock() in tests to skip 500 ms debounce.
     @Dependency(\.continuousClock) var clock
 
     // TCA: CancelID identifies the debounced search effect for .cancel / .cancellable.
@@ -54,7 +56,7 @@ struct SearchFeature: Reducer {
 
                 state.searchState = .loading
 
-                // TCA: .run = debounce 500ms, then call search API.
+                // DI: clock + ghibliClient both from @Dependency (no capture list).
                 return .run { send in
                     try await clock.sleep(for: .milliseconds(500))
                     try Task.checkCancellation()
@@ -98,9 +100,8 @@ struct SearchFeature: Reducer {
                 return .none
             }
         }
-        // TCA: .forEach = run FilmTabNavigation reducer for each item in state.path.
         .forEach(\.path, action: \.path) {
-            FilmTabNavigation()
+            FilmTabNavigation()  // DI: Navigation stack children inherit ghibliClient from Store.
         }
     }
 }

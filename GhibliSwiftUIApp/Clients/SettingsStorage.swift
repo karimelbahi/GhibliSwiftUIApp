@@ -1,11 +1,15 @@
 //
 //  SettingsStorage.swift
 //
+//  DI layer: Direct UserDefaults helper — NOT a TCA @Dependency (yet).
+//  AppFeature / SettingsFeature call static methods instead of @Dependency(\.settingsStorage).
+//
 
 import Foundation
 
 enum SettingsStorage {
 
+    // DI: Reads UserDefaults keys into SettingsFeature.State on app launch.
     static func load() -> SettingsFeature.State {
         let defaults = UserDefaults.standard
         let themeRaw = defaults.string(forKey: UserDefaultsKeys.appearanceTheme) ?? AppearanceTheme.system.rawValue
@@ -22,6 +26,7 @@ enum SettingsStorage {
         )
     }
 
+    // DI: Persists SettingsFeature.State when user changes a setting.
     static func save(_ state: SettingsFeature.State) {
         let defaults = UserDefaults.standard
         defaults.set(state.appearanceTheme.rawValue, forKey: UserDefaultsKeys.appearanceTheme)

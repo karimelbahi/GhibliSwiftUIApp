@@ -14,7 +14,7 @@ struct FavoritesFeatureTests {
     @Test("Fetch loads films successfully")
     func fetchLoadsFilms() async {
         let store = TestStore(initialState: FavoritesFeature.State()) {
-            FavoritesFeature()
+            FavoritesFeature()  // DI: @Dependency(\.ghibliClient) — override in withDependencies.
         } withDependencies: {
             $0.ghibliClient = makeMockGhibliClient()
         }

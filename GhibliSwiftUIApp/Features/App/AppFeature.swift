@@ -27,14 +27,17 @@ struct AppFeature: Reducer {
         case settings(SettingsFeature.Action)
     }
 
+    // DI: Read FavoritesClient from Store's DependencyValues (registered in ContentView.withDependencies).
     @Dependency(\.favoritesClient) var favoritesClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                // DI: SettingsStorage is NOT @Dependency — direct static UserDefaults access.
                 state.settings = SettingsStorage.load()
                 return .merge(
+                    // DI: Effect uses favoritesClient from @Dependency (load persisted favorite IDs).
                     .run { send in
                         await send(.favoriteIDsLoaded(favoritesClient.loadFavoriteIDs()))
                     },
@@ -57,6 +60,7 @@ struct AppFeature: Reducer {
                 }
                 syncFavoriteIDs(into: &state)
                 let favoriteIDs = state.favoriteIDs
+                // DI: Side effect persists to UserDefaults via FavoritesClient (no reducer state change after).
                 return .run { _ in
                     favoritesClient.saveFavoriteIDs(favoriteIDs)
                 }
@@ -71,16 +75,16 @@ struct AppFeature: Reducer {
             }
         }
         Scope(state: \.films, action: \.films) {
-            FilmsFeature()
+            FilmsFeature()  // DI: Child inherits ghibliClient + favoritesClient from parent Store context.
         }
         Scope(state: \.favorites, action: \.favorites) {
-            FavoritesFeature()
+            FavoritesFeature()  // DI: Same inherited DependencyValues — no client passed in init.
         }
         Scope(state: \.search, action: \.search) {
-            SearchFeature()
+            SearchFeature()  // DI: Also inherits continuousClock default unless overridden in tests.
         }
         Scope(state: \.settings, action: \.settings) {
-            SettingsFeature()
+            SettingsFeature()  // DI: No @Dependency — uses SettingsStorage static methods.
         }
     }
 

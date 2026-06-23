@@ -32,6 +32,7 @@ struct FavoritesFeature: Reducer {
         case path(StackActionOf<FilmTabNavigation>)
     }
 
+    // DI: Same @Dependency(\.ghibliClient) as FilmsFeature — shared live client from root Store.
     @Dependency(\.ghibliClient) var ghibliClient
 
     var body: some Reducer<State, Action> {
@@ -42,7 +43,7 @@ struct FavoritesFeature: Reducer {
                 if case .idle = state.filmsState {
                     state.filmsState = .loading
                 }
-                // TCA: .run = fetch catalog so view can filter favorites client-side.
+                // DI: Uses same ghibliClient as Movies tab — fetches full catalog to filter favorites locally.
                 return .run { send in
                     do {
                         let films = try await ghibliClient.fetchFilms()
@@ -77,7 +78,7 @@ struct FavoritesFeature: Reducer {
                 return .none
             }
         }
-        // TCA: .forEach = run FilmTabNavigation reducer for each item in state.path.
+        // DI: Stack child reducers inherit Store's DependencyValues automatically.
         .forEach(\.path, action: \.path) {
             FilmTabNavigation()
         }

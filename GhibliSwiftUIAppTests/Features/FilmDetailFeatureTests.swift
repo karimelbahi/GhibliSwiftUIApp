@@ -16,7 +16,7 @@ struct FilmDetailFeatureTests {
         let store = TestStore(
             initialState: FilmDetailFeature.State(film: TestFixtures.filmWithPeople)
         ) {
-            FilmDetailFeature()
+            FilmDetailFeature()  // DI: Stack child — @Dependency(\.ghibliClient) resolved from withDependencies below.
         } withDependencies: {
             $0.ghibliClient = makeMockGhibliClient()
         }
@@ -37,6 +37,7 @@ struct FilmDetailFeatureTests {
         ) {
             FilmDetailFeature()
         } withDependencies: {
+            // DI: Mock fetchPeople failure — tests error UI without network.
             $0.ghibliClient = makeMockGhibliClient(
                 shouldThrowOnFetchPeople: true,
                 fetchPeopleError: DomainError.networkUnavailable
